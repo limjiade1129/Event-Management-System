@@ -42,7 +42,7 @@ if (isset($_POST['submit'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: url('img/background1.jpg') no-repeat center center fixed;
             background-size: cover; 
             display: flex;
@@ -50,6 +50,14 @@ if (isset($_POST['submit'])) {
             align-items: center;
             height: 90vh;
             margin: 0;
+            flex-direction: column; /* Align items in column to show the title above */
+        }
+        .title {
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            text-decoration: none;
         }
         .login-form {
             background-color: white;
@@ -125,6 +133,11 @@ if (isset($_POST['submit'])) {
     </style>
 </head>
 <body>
+    <!-- Added Title -->
+    <div class="title">
+        <h1>iEvent - Event Management System</h1>
+    </div>
+    
     <div class="login-form">
         <h1>Login</h1>
         <p class="welcome-message">Welcome back to EventGo!</p>

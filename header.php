@@ -51,20 +51,20 @@ $role = $_SESSION["role"];
         /* Navigation Styles */
         .navbar {
             display: flex;
-            gap: 20px;
+            gap: 40px;
             align-items: center;
         }
 
         .navbar a {
             text-decoration: none;
-            color: #333; /* Dark grey text color */
+            color: #333; 
             font-size: 16px;
             font-weight: 500;
             transition: color 0.3s;
         }
 
         .navbar a:hover {
-            color: #007bff; /* Blue on hover */
+            color: #007bff; 
         }
 
         /* User Dropdown Styles */
@@ -127,6 +127,9 @@ $role = $_SESSION["role"];
         <!-- Navbar -->
         <div class="navbar">
             <a href="homepage.php">Home</a>
+            <a href="homepage.php">Event List</a>
+            <a href="homepage.php">My Event</a>
+            <a href="aboutus.php">About Us</a>
 
             <?php if ($role === 'organizer') : ?>
                 <a href="userlist.php">Event List</a>

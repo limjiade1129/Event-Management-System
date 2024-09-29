@@ -12,13 +12,14 @@ if (isset($_POST['submit'])) {
     if (mysqli_num_rows($result) > 0) {
         if ($password == $row["password"]) { // Compare the passwords
             $_SESSION["login"] = true;
-            $_SESSION["userid"] = $row["userid"];
-            $_SESSION["role"] = $row["role"]; 
+            $_SESSION["user_id"] = $row["user_id"];
+            $_SESSION["role"] = $row["role"];
+            
 
             // Redirect based on role
-            if ($row["role"] == 'user') {
+            if ($row["role"] == 'User') {
                 header('Location: homepage.php'); // Redirect to user homepage
-            } elseif ($row["role"] == 'organizer') {
+            } elseif ($row["role"] == 'Organizer') {
                 header('Location: homepage.php'); // Redirect to organizer homepage
             }
 

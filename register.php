@@ -33,18 +33,19 @@
             margin: 10px 0;
         }
         .input-container input, .input-container select {
-            width: 100%; /* Make input width 100% of container */
-            padding: 10px 10px 10px 35px; /* Adjust padding for left icon */
+            width: 100%;
+            padding: 10px 10px 10px 35px;
             border: 1px solid #ddd;
             border-radius: 5px;
-            box-sizing: border-box; /* Include padding and border in element's total width and height */
+            box-sizing: border-box;
         }
         .input-container i {
             position: absolute;
             top: 50%;
-            left: 10px; /* Position icons to the left */
+            left: 10px;
             transform: translateY(-50%);
             color: #888;
+            pointer-events: none;
         }
         .register-form button {
             background-color: #007bff;
@@ -58,10 +59,6 @@
         }
         .register-form button:hover {
             background-color: #0056b3;
-        }
-        .error {
-            color: red;
-            margin-bottom: 10px;
         }
         .links {
             margin-top: 20px;
@@ -79,19 +76,20 @@
             color: #888;
         }
     </style>
+
 </head>
 <body>
     <div class="register-form">
         <h1>Register</h1>
         <p class="welcome-message">Join us at EventGo!</p>
-        <form action="handle_register.php" method="post">
+        <form action="handle_register.php" method="post" onsubmit="return validateForm()" autocomplete="off">
             <div class="input-container">
                 <i class="fas fa-user"></i>
-                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="username" id="username" placeholder="Username" required>
             </div>
             <div class="input-container">
                 <i class="fas fa-envelope"></i>
-                <input type="email" name="email" placeholder="Email" required>
+                <input type="email" name="email" id="email" placeholder="Email" required>
             </div>
             <div class="input-container">
                 <i class="fas fa-lock"></i>
@@ -107,20 +105,75 @@
             </div>
             <div class="input-container">
                 <i class="fas fa-user-tag"></i>
-                <select name="role" required>
+                <select name="role" id="role" required>
                     <option value="" disabled selected>Select Role</option>
-                    <option value="user">User</option>
-                    <option value="organizer">Organizer</option>
+                    <option value="User">User</option>
+                    <option value="Organizer">Organizer</option>
                 </select>
             </div>
             <button type="submit">Register</button>
         </form>
 
-        <?php if (isset($error)) { echo '<p class="error">' . $error . '</p>'; } ?>
-
         <div class="links">
             <p>Already have an account? <a href="login.php">Login</a></p>
         </div>
     </div>
+
+    <script>
+        function validateForm() {
+            // Get form field values
+            var username = document.getElementById("username").value;
+            var email = document.getElementById("email").value;
+            var password = document.getElementById("password").value;
+            var confirmpassword = document.getElementById("confirmpassword").value;
+            var telno = document.getElementById("telno").value;
+            var role = document.getElementById("role").value;
+
+            // Regular expressions for validation
+            var usernameRegex = /^[a-zA-Z0-9]{3,15}$/; // Only alphanumeric, 3-15 characters
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email format
+            var passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/; // At least one uppercase, one lowercase, one number, one special char, and 8 characters
+            var phoneRegex = /^[0-9]{10,12}$/; // Allows numbers between 10 and 12 digits
+
+            // Validate Username
+            if (!usernameRegex.test(username)) {
+                alert("Username must be 3-15 characters long and contain only letters and numbers.");
+                return false;
+            }
+
+            // Validate Email
+            if (!emailRegex.test(email)) {
+                alert("Please enter a valid email address.");
+                return false;
+            }
+
+            // Validate Password
+            if (!passwordRegex.test(password)) {
+                alert("Password must be at least 8 characters long, including an uppercase letter, a lowercase letter, a number, and a special character.");
+                return false;
+            }
+
+            // Validate Confirm Password
+            if (password !== confirmpassword) {
+                alert("Passwords do not match.");
+                return false;
+            }
+
+            // Validate Phone Number
+            if (!phoneRegex.test(telno)) {
+                alert("Please enter a valid phone number (10-12 digits).");
+                return false;
+            }
+
+            // Validate Role selection
+            if (role === "") {
+                alert("Please select a role.");
+                return false;
+            }
+
+            // If all validations pass
+            return true;
+        }
+    </script>
 </body>
 </html>

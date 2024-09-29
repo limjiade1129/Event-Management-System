@@ -1,5 +1,5 @@
 <?php
-session_start();
+require "config.php";
 
 // Redirect to login if not logged in
 if (!isset($_SESSION["login"])) {
@@ -9,8 +9,9 @@ if (!isset($_SESSION["login"])) {
 
 // Get the user role from the session
 $role = $_SESSION["role"];
-?>
+$user_id = $_SESSION["user_id"];
 
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -83,11 +84,14 @@ $role = $_SESSION["role"];
             display: none;
             position: absolute;
             right: 0;
-            background-color: #fff;
-            min-width: 150px;
+            background-color: #f1f1f1;
+            min-width: 170px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
             border-radius: 4px;
             z-index: 1000;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
         .dropdown-content a {
@@ -99,11 +103,13 @@ $role = $_SESSION["role"];
         }
 
         .dropdown-content a:hover {
-            background-color: #f1f1f1;
+            background-color: #ddd;
         }
 
-        .user-menu:hover .dropdown-content {
-            display: block; /* Show dropdown on hover */
+        .dropdown-content.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
         }
 
         /* Responsive Styles */
@@ -127,21 +133,48 @@ $role = $_SESSION["role"];
         <!-- Navbar -->
         <div class="navbar">
             <a href="homepage.php">Home</a>
-            <a href="homepage.php">Event List</a>
-            <a href="homepage.php">My Event</a>
+            <a href="eventlist.php">Event List</a>
+            <a href="homepage.php">Event History</a>
+
+            <?php if ($role === 'Organizer') : ?>
+                <a href="">My Event</a>
+            <?php endif; ?>
+
             <a href="aboutus.php">About Us</a>
 
-            <?php if ($role === 'organizer') : ?>
-                <a href="userlist.php">Event List</a>
-            <?php endif; ?>
         </div>
 
-        <!-- User Dropdown Menu -->
+        <!-- Dropdown Menu -->
         <div class="user-menu">
-            <i class="fas fa-user-circle user-icon"></i> <!-- User Icon -->
-            <div class="dropdown-content">
+            <i class="fas fa-user-circle user-icon" onclick="toggleDropdown()"></i> 
+            <div class="dropdown-content" id="userDropdown">
                 <a href="profile.php"><i class="fas fa-user"></i> My Profile</a>
                 <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
         </div>
     </div>
+
+    
+    <script>
+        // Toggle dropdown menu
+        function toggleDropdown() {
+            var dropdown = document.getElementById("userDropdown");
+            dropdown.classList.toggle("show");
+        }
+
+        // Close the dropdown if the user clicks outside of it
+        window.onclick = function(event) {
+            if (!event.target.matches('.user-icon')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+    </script>
+
+</body>
+</html>

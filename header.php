@@ -137,7 +137,7 @@ $user_id = $_SESSION["user_id"];
             <a href="homepage.php">Event History</a>
 
             <?php if ($role === 'Organizer') : ?>
-                <a href="">My Event</a>
+                <a href="my_event.php">My Event</a>
             <?php endif; ?>
 
             <a href="aboutus.php">About Us</a>

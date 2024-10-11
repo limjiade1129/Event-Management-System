@@ -4,7 +4,7 @@ require "config.php";
 
 $user_id = $_SESSION['user_id'];
 
-// Fetch user data from database (assuming you have a table named `users`)
+// Fetch user data from the database
 $query = "SELECT * FROM user WHERE user_id = '$user_id'";
 $result = mysqli_query($conn, $query);
 $user_data = mysqli_fetch_assoc($result);
@@ -12,21 +12,26 @@ $user_data = mysqli_fetch_assoc($result);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle form submission
     $username = $_POST['username'];
-    $email = $_POST['email'];
-    $password = $_POST['password'];
     $telno = $_POST['telno'];
     $role = $_POST['role'];
 
     // Update user information in the database
-    $update_query = "UPDATE user SET username='$username', email='$email', password='$password', telno='$telno', role='$role' WHERE user_id='$user_id'";
+    $update_query = "UPDATE user SET username='$username', telno='$telno', role='$role' WHERE user_id='$user_id'";
 
     if (mysqli_query($conn, $update_query)) {
         $_SESSION['role'] = $role;
-        echo "Profile updated successfully!";
-        header("Location: profile.php");
+        // Display a success message using JavaScript and redirect to profile page
+        echo "<script>
+                alert('Profile updated successfully!');
+                window.location.href = 'profile.php';
+              </script>";
         exit();
     } else {
-        echo "Error updating profile: " . mysqli_error($conn);
+        echo "<script>
+                alert('Error updating profile: " . mysqli_error($conn) . "');
+                window.location.href = 'edit_profile.php';
+              </script>";
+        exit();
     }
 }
 ?>
@@ -72,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-bottom: 5px;
         }
 
-        .form-row input {
+        .form-row input, .form-row select {
             width: 100%;
             padding: 10px;
             font-size: 16px;
@@ -81,21 +86,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             box-sizing: border-box;
         }
 
-        .form-row select {
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 10px;
-            top: 70%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #888;
+        .form-row input[readonly] {
+            background-color: #f5f5f5; /* Light grey background for readonly fields */
+            color: #888; /* Grey text color for readonly fields */
+            cursor: not-allowed; /* Show 'not-allowed' cursor when hovering */
         }
 
         .edit-profile {
@@ -130,10 +124,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
-
     <div class="profile-container">
         <h2>Edit Profile</h2>
-
         <form action="edit_profile.php" method="POST">
             <div class="form-row">
                 <label for="username">Username:</label>
@@ -142,13 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="form-row">
                 <label for="email">Email:</label>
-                <input type="email" name="email" id="email" value="<?php echo $user_data['email']; ?>" required>
-            </div>
-
-            <div class="form-row">
-                <label for="password">Password:</label>
-                <input type="password" name="password" id="password" value="<?php echo $user_data['password']; ?>" required>
-                <i class="fas fa-eye toggle-password" onclick="togglePassword()"></i>
+                <input type="email" name="email" id="email" value="<?php echo $user_data['email']; ?>" readonly>
             </div>
 
             <div class="form-row">
@@ -175,23 +161,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </form>
     </div>
-
-    <!-- JavaScript for toggling password visibility -->
-    <script>
-        function togglePassword() {
-            const passwordField = document.getElementById('password');
-            const toggleIcon = document.querySelector('.toggle-password');
-
-            if (passwordField.type === 'password') {
-                passwordField.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordField.type = 'password';
-                toggleIcon.classList.remove('fa-eye-slash');
-                toggleIcon.classList.add('fa-eye');
-            }
-        }
-    </script>
 </body>
 </html>

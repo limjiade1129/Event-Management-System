@@ -5,12 +5,15 @@ if (isset($_POST['submit'])) {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
+    // Hash the entered password using md5
+    $hashedPassword = md5($password);
+
     // Query to select user details
     $result = mysqli_query($conn, "SELECT * FROM user WHERE email='$email'");
     $row = mysqli_fetch_assoc($result);
 
     if (mysqli_num_rows($result) > 0) {
-        if ($password == $row["password"]) { // Compare the passwords
+        if ($hashedPassword == $row["password"]) { // Compare the passwords
             $_SESSION["login"] = true;
             $_SESSION["user_id"] = $row["user_id"];
             $_SESSION["role"] = $row["role"];
@@ -21,6 +24,8 @@ if (isset($_POST['submit'])) {
                 header('Location: homepage.php'); // Redirect to user homepage
             } elseif ($row["role"] == 'Organizer') {
                 header('Location: homepage.php'); // Redirect to organizer homepage
+            }elseif ($row["role"] == 'Admin') {
+                header('Location: admin_dashboard.php'); // Redirect to organizer homepage
             }
 
             exit();
@@ -59,6 +64,7 @@ if (isset($_POST['submit'])) {
             font-size: 20px;
             font-weight: bold;
             text-decoration: none;
+            color: #007bff;
         }
         .login-form {
             background-color: white;
@@ -131,12 +137,19 @@ if (isset($_POST['submit'])) {
             font-size: 14px;
             color: #888;
         }
+        .logo {
+            font-size: 40px;
+            font-weight: bold;
+            color: #007bff; /* Blue color for the logo */
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
     <!-- Added Title -->
     <div class="title">
-        <h1>iEvent - Event Management System</h1>
+        <h1>EventGo - Event Management System</h1>
+
     </div>
     
     <div class="login-form">

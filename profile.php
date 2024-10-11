@@ -72,15 +72,21 @@ $role = $user_data['role'];
             margin-right: 10px;
         }
 
-        .edit-profile {
-            text-align: center;
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px; /* Space between buttons */
             margin-top: 30px;
         }
 
-        .edit-profile button {
+        .button-container a {
+            text-decoration: none;
+        }
+
+        .button-container button {
             background-color: #007bff;
             color: white;
-            padding: 12px 30px;
+            padding: 12px 20px;
             border: none;
             border-radius: 50px;
             cursor: pointer;
@@ -89,7 +95,7 @@ $role = $user_data['role'];
             box-shadow: 0 5px 10px rgba(0, 123, 255, 0.2);
         }
 
-        .edit-profile button:hover {
+        .button-container button:hover {
             background-color: #0056b3;
             box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
         }
@@ -104,6 +110,15 @@ $role = $user_data['role'];
             .profile-value {
                 margin-top: 5px;
                 text-align: left;
+            }
+
+            .button-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .button-container a {
+                width: 100%;
             }
         }
     </style>
@@ -129,8 +144,10 @@ $role = $user_data['role'];
         </div>
 
         <div class="profile-row">
-            <div class="profile-label"><i class="fa fa-key"></i>Password:</div>
-            <div class="profile-value"><?php echo $password; ?></div>
+            <div class="profile-label"><i class="fa fa-key"></i>Password (Encrypted):</div>
+            <div class="profile-value">
+                <input type="password" value="<?php echo $password; ?>" readonly style="border: none; background: transparent; color: #333; width: 100%; outline: none;">
+            </div>
         </div>
 
         <div class="profile-row">
@@ -143,8 +160,9 @@ $role = $user_data['role'];
             <div class="profile-value"><?php echo $role; ?></div>
         </div>
 
-        <div class="edit-profile">
+        <div class="button-container">
             <a href="edit_profile.php"><button>Edit Profile</button></a>
+            <a href="change_password.php"><button>Change Password</button></a>
         </div>
     </div>
 
@@ -152,3 +170,5 @@ $role = $user_data['role'];
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </body>
 </html>
+
+

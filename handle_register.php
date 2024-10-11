@@ -1,5 +1,7 @@
 
 <?php
+require 'config.php';
+
 $username = $_POST['username'];
 $email = $_POST['email'];
 $password = $_POST['password'];
@@ -7,7 +9,6 @@ $confirmpassword = $_POST['confirmpassword'];
 $telno = $_POST['telno'];
 $role = $_POST['role'];
 
-require 'config.php';
 if ($conn->connect_error) {
     die('Connection Failed : '.$conn->connect_error);
 } else {
@@ -29,9 +30,12 @@ if ($conn->connect_error) {
         <?php
         exit();
     } else {
+        // Hash the password using md5 
+        $hashedPassword = md5($password);
+
         // Email does not exist, proceed with the registration
         $stmt = $conn->prepare("INSERT INTO user(username, email, password, telno, role) VALUES (?,?,?,?,?)");
-        $stmt->bind_param("sssss", $username, $email, $password, $telno, $role);
+        $stmt->bind_param("sssss", $username, $email, $hashedPassword, $telno, $role);
         
         if ($stmt->execute()) {
             $stmt->close();
@@ -44,7 +48,7 @@ if ($conn->connect_error) {
             <?php
             exit();
         } else {
-            $stmt->close();
+            $stmt->close(); 
             $conn->close();
             ?>
             <script>

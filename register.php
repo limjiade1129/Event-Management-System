@@ -133,7 +133,7 @@
             var usernameRegex = /^[a-zA-Z0-9]{3,15}$/; // Only alphanumeric, 3-15 characters
             var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email format
             var passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/; // At least one uppercase, one lowercase, one number, one special char, and 8 characters
-            var phoneRegex = /^[0-9]{10,12}$/; // Allows numbers between 10 and 12 digits
+            var phoneRegex = /^0[0-9]{9}$/; 
 
             // Validate Username
             if (!usernameRegex.test(username)) {
@@ -161,7 +161,7 @@
 
             // Validate Phone Number
             if (!phoneRegex.test(telno)) {
-                alert("Please enter a valid phone number (10-12 digits).");
+                alert("Please enter a valid phone number (e.g., 0161234567).");
                 return false;
             }
 

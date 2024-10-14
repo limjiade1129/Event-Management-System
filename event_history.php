@@ -1,14 +1,15 @@
 <?php
-$title = "My Events";
+$title = "Event History";
 include 'header.php';
 
-// Get the organizer's user ID from the session
+// Get the user's user ID from the session
 $user_id = $_SESSION['user_id'];
 
-// Fetch events created by this organizer
-$query = "SELECT * FROM events 
-          WHERE created_by = ? 
-          ORDER BY date ASC, start_time ASC";
+// Fetch events the user has registered for
+$query = "SELECT e.* FROM events e
+          JOIN event_registrations er ON e.event_id = er.event_id
+          WHERE er.user_id = ? 
+          ORDER BY e.date DESC";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -20,7 +21,7 @@ $result = $stmt->get_result();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Events</title>
+    <title>Event History</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
@@ -42,26 +43,9 @@ $result = $stmt->get_result();
             color: #2c3e50;
         }
 
-        .create-event-button {
-            display: block;
-            text-align: center;
-            background-color: #3498db;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            text-decoration: none;
-            margin-bottom: 30px;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
-
-        .create-event-button:hover {
-            background-color: #2980b9;
-        }
-
         .event-list {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: 1fr;
             gap: 25px;
         }
 
@@ -72,8 +56,9 @@ $result = $stmt->get_result();
             overflow: hidden;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            flex-direction: row;
+            align-items: center;
+            padding: 20px;
         }
 
         .event-card:hover {
@@ -82,15 +67,14 @@ $result = $stmt->get_result();
         }
 
         .event-image {
-            width: 100%;
-            height: 200px;
+            width: 150px;
+            height: 150px;
             object-fit: cover;
+            border-radius: 12px;
+            margin-right: 20px;
         }
 
         .event-details {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
             flex-grow: 1;
         }
 
@@ -144,66 +128,42 @@ $result = $stmt->get_result();
         .event-description {
             font-size: 0.95em;
             color: #666;
-            margin: 15px 0;
+            margin: 10px 0;
             line-height: 1.4;
+            max-height: 45px;
             overflow: hidden;
             text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2; /* Limit the text to 2 lines */
-            -webkit-box-orient: vertical;
             flex-grow: 1;
-        }
-        .view-more {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: auto; /* Push the button to the bottom */
-            text-align: center;
-        }
-        .view-more:hover {
-            background-color: #2980b9;
-        }
-        .view-more a {
-            text-decoration: none;
-            color: white;
         }
 
         .event-actions {
             display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            padding-top: 10px;
+            flex-direction: column;
+            align-items: flex-end;
         }
 
-        .edit-button, .delete-button {
-            flex: 1;
-            text-align: center;
+        .action-button {
             background-color: #3498db;
             color: white;
-            padding: 10px;
+            padding: 10px 20px;
             border-radius: 25px;
             text-decoration: none;
             font-weight: bold;
+            margin-bottom: 10px;
             transition: background-color 0.3s ease;
+            text-align: center;
         }
 
-        .edit-button:hover {
+        .action-button:hover {
             background-color: #2980b9;
         }
 
-        .delete-button {
-            background-color: #e74c3c;
+        .feedback-button {
+            background-color: #e67e22;
         }
 
-        .delete-button:hover {
-            background-color: #c0392b;
+        .feedback-button:hover {
+            background-color: #d35400;
         }
 
         .no-events-message {
@@ -213,17 +173,31 @@ $result = $stmt->get_result();
             color: #555;
         }
 
-        @media (max-width: 600px) {
-            .event-list {
-                grid-template-columns: 1fr;
+        @media (max-width: 768px) {
+            .event-card {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .event-image {
+                margin-bottom: 15px;
+            }
+
+            .event-actions {
+                align-items: center;
+            }
+
+            .action-button {
+                width: 100%;
+                margin-bottom: 10px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>My Events</h1>
-        <a href="create_event.php" class="create-event-button">Create New Event</a>
+        <h1>Event History</h1>
         <div class="event-list">
             <?php if ($result->num_rows > 0): ?>
                 <?php while ($event = $result->fetch_assoc()): ?>
@@ -239,18 +213,15 @@ $result = $stmt->get_result();
                             <p class="event-info"><i class="far fa-calendar-alt"></i> <?php echo date("F j, Y", strtotime($event['date'])); ?></p>
                             <p class="event-info"><i class="far fa-clock"></i> <?php echo date("g:i A", strtotime($event['start_time'])); ?> - <?php echo date("g:i A", strtotime($event['end_time'])); ?></p>
                             <p class="event-description"><?php echo $event['description']; ?></p>
-                            <button class="view-more">
-                                 <a href="event_details.php?id=<?php echo $event['event_id']; ?>&from=eventlist">View Details</a>
-                            </button>
-                            <div class="event-actions">
-                                <a href="edit_event.php?id=<?php echo $event['event_id']; ?>" class="edit-button">Edit</a>
-                                <a href="delete_event.php?id=<?php echo $event['event_id']; ?>" class="delete-button" onclick="return confirm('Are you sure you want to delete this event?');">Delete</a>
-                            </div>
+                        </div>
+                        <div class="event-actions">
+                            <a href="event_details.php?id=<?php echo $event['event_id']; ?>&from=eventhistory" class="action-button">View Details</a>
+                            <a href="feedback.php?id=<?php echo $event['event_id']; ?>" class="action-button feedback-button">Feedback</a>
                         </div>
                     </div>
                 <?php endwhile; ?>
             <?php else: ?>
-                <p class="no-events-message">No events found. <a href="create_event.php">Create a new event</a>.</p>
+                <p class="no-events-message">You have not registered for any events yet.</p>
             <?php endif; ?>
         </div>
     </div>

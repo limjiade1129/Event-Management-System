@@ -134,7 +134,7 @@ $user_id = $_SESSION["user_id"];
         <div class="navbar">
             <a href="homepage.php">Home</a>
             <a href="eventlist.php">Event List</a>
-            <a href="homepage.php">Event History</a>
+            <a href="event_history.php">Event History</a>
 
             <?php if ($role === 'Organizer') : ?>
                 <a href="my_event.php">My Event</a>

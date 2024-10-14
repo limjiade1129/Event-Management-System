@@ -77,12 +77,12 @@ include 'header.php';
         }
 
         .card {
-            padding: 16px;
+            padding: 8px;
             text-align: center;
         }
 
         .card img {
-            width: 100%;
+            width: 300px;
             height: 250px;
             object-fit: cover no-repeat;
         }

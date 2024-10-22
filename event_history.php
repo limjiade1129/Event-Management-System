@@ -5,13 +5,15 @@ include 'header.php';
 // Get the user's user ID from the session
 $user_id = $_SESSION['user_id'];
 
-// Fetch events the user has registered for
-$query = "SELECT e.* FROM events e
+// Fetch events the user has registered for along with feedback status and registration date
+$query = "SELECT e.*, er.registration_date,
+          (SELECT COUNT(*) FROM feedback f WHERE f.event_id = e.event_id AND f.user_id = ?) as feedback_submitted 
+          FROM events e
           JOIN event_registrations er ON e.event_id = er.event_id
           WHERE er.user_id = ? 
-          ORDER BY e.date DESC";
+          ORDER BY er.registration_date ASC";
 $stmt = $conn->prepare($query);
-$stmt->bind_param("i", $user_id);
+$stmt->bind_param("ii", $user_id, $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 ?>
@@ -33,137 +35,90 @@ $result = $stmt->get_result();
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
         }
 
         h1 {
             text-align: center;
             font-size: 2.5em;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             color: #2c3e50;
         }
 
-        .event-list {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 25px;
-        }
-
-        .event-card {
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
             background-color: #fff;
-            border-radius: 12px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            padding: 20px;
         }
 
-        .event-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .event-image {
-            width: 150px;
-            height: 150px;
-            object-fit: cover;
-            border-radius: 12px;
-            margin-right: 20px;
-        }
-
-        .event-details {
-            flex-grow: 1;
-        }
-
-        .event-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .event-type {
-            background-color: #2ecc71;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 12px;
+        table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
             font-size: 0.9em;
-            font-weight: bold;
-        }
-
-        .event-slots {
-            background-color: #e74c3c;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 12px;
-            font-size: 0.9em;
-            font-weight: bold;
-        }
-
-        .event-name {
-            font-size: 1.4em;
-            font-weight: bold;
-            margin: 0 0 10px 0;
-            color: #2c3e50;
-        }
-
-        .event-info {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-            font-size: 0.9em;
-            color: #555;
-        }
-
-        .event-info i {
-            margin-right: 6px;
-            color: #3498db;
-            width: 18px;
             text-align: center;
         }
 
-        .event-description {
-            font-size: 0.95em;
-            color: #666;
-            margin: 10px 0;
-            line-height: 1.4;
-            max-height: 45px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            flex-grow: 1;
+        table th {
+            background-color: #3498db;
+            color: white;
+            font-size: 1em;
         }
 
-        .event-actions {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
+        table tr:hover {
+            background-color: #f2f2f2;
         }
 
         .action-button {
             background-color: #3498db;
             color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
+            padding: 10px 11px;
+            border-radius: 15px;
+            font-size: 0.9em;
             text-decoration: none;
             font-weight: bold;
-            margin-bottom: 10px;
-            transition: background-color 0.3s ease;
-            text-align: center;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 5px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
         }
 
         .action-button:hover {
             background-color: #2980b9;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
         .feedback-button {
             background-color: #e67e22;
+            color: white;
         }
 
         .feedback-button:hover {
             background-color: #d35400;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .delete-button {
+            background-color: #e74c3c;
+        }
+
+        .delete-button:hover {
+            background-color: #c0392b;
+        }
+
+        .feedback-disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .feedback-disabled:hover {
+            background-color: #bdc3c7;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
         }
 
         .no-events-message {
@@ -173,57 +128,79 @@ $result = $stmt->get_result();
             color: #555;
         }
 
-        @media (max-width: 768px) {
-            .event-card {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-
-            .event-image {
-                margin-bottom: 15px;
-            }
-
-            .event-actions {
-                align-items: center;
-            }
-
-            .action-button {
-                width: 100%;
-                margin-bottom: 10px;
-            }
+        .table-actions {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
         }
+
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Event History</h1>
-        <div class="event-list">
-            <?php if ($result->num_rows > 0): ?>
-                <?php while ($event = $result->fetch_assoc()): ?>
-                    <div class="event-card">
-                        <img src="uploads/<?php echo $event['image']; ?>" alt="<?php echo $event['event_name']; ?>" class="event-image">
-                        <div class="event-details">
-                            <div class="event-header">
-                                <span class="event-type"><?php echo $event['event_type']; ?></span>
-                                <span class="event-slots">Slots left: <?php echo $event['slots']; ?></span>
-                            </div>
-                            <h2 class="event-name"><?php echo $event['event_name']; ?></h2>
-                            <p class="event-info"><i class="fas fa-map-marker-alt"></i> <?php echo $event['location']; ?></p>
-                            <p class="event-info"><i class="far fa-calendar-alt"></i> <?php echo date("F j, Y", strtotime($event['date'])); ?></p>
-                            <p class="event-info"><i class="far fa-clock"></i> <?php echo date("g:i A", strtotime($event['start_time'])); ?> - <?php echo date("g:i A", strtotime($event['end_time'])); ?></p>
-                            <p class="event-description"><?php echo $event['description']; ?></p>
-                        </div>
-                        <div class="event-actions">
-                            <a href="event_details.php?id=<?php echo $event['event_id']; ?>&from=eventhistory" class="action-button">View Details</a>
-                            <a href="feedback.php?id=<?php echo $event['event_id']; ?>" class="action-button feedback-button">Feedback</a>
-                        </div>
-                    </div>
-                <?php endwhile; ?>
-            <?php else: ?>
-                <p class="no-events-message">You have not registered for any events yet.</p>
-            <?php endif; ?>
-        </div>
+
+        <?php if ($result->num_rows > 0): ?>
+            <table>
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Event Name</th>
+                        <th>Event Type</th>
+                        <th>Event Date</th>
+                        <th>Event Time</th>
+                        <th>Location</th>
+                        <th>Status</th> 
+                        <th>Registration Time</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $counter = 1;
+                    $today = date("Y-m-d"); // Get today's date in YYYY-MM-DD format
+
+                    while ($event = $result->fetch_assoc()): 
+                        $event_date = $event['date'];
+                        $feedback_submitted = $event['feedback_submitted']; // 0 if not submitted, 1 if submitted
+
+                        // Determine if the event is upcoming or passed
+                        $event_status = ($event_date > $today) ? "Upcoming" : "Passed";
+                    ?>
+                        <tr>
+                            <td><?php echo $counter++; ?></td>
+                            <td><?php echo $event['event_name']; ?></td>
+                            <td><?php echo $event['event_type']; ?></td>
+                            <td><?php echo date("j F Y", strtotime($event['date'])); ?></td>
+                            <td><?php echo date("g:i A", strtotime($event['start_time'])); ?> - <?php echo date("g:i A", strtotime($event['end_time'])); ?></td>
+                            <td><?php echo $event['location']; ?></td>
+                            <td><?php echo $event_status; ?></td>
+                            <td><?php echo $event['time_created']; ?></td>
+                            <td class="table-actions">
+                                <div class="action-buttons">
+                                    <a href="event_details.php?id=<?php echo $event['event_id']; ?>" class="action-button">View Details</a>
+
+                                    <?php if ($feedback_submitted > 0): ?>
+                                        <button class="action-button feedback-button feedback-disabled" disabled>Feedback Submitted</button>
+                                    <?php elseif ($event_date > $today): ?>
+                                        <button class="action-button feedback-button feedback-disabled" disabled>Feedback Unavailable</button>
+                                    <?php else: ?>
+                                        <a href="feedback.php?id=<?php echo $event['event_id']; ?>" class="action-button feedback-button">Give Feedback</a>
+                                    <?php endif; ?>
+
+                                    <?php if ($event_date >= $today): ?>
+                                        <!-- Delete button for future events -->
+                                        <a href="delete_registration.php?id=<?php echo $event['event_id']; ?>" class="action-button delete-button">Delete</a>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <p class="no-events-message">You have not registered for any events yet.</p>
+        <?php endif; ?>
     </div>
 </body>
 </html>

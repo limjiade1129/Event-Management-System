@@ -9,8 +9,11 @@ $user_id = $_SESSION['user_id']; // Assuming user_id is stored in session when t
 // Determine where the user came from (either event list or event history)
 $from = isset($_GET['from']) ? $_GET['from'] : 'eventlist'; // Default to event list if not provided
 
-// Fetch event details based on event_id
-$query = "SELECT * FROM events WHERE event_id = $event_id";
+// Fetch event details and organizer information based on event_id
+$query = "SELECT e.*, u.username AS organizer_name, u.email AS organizer_email 
+          FROM events e
+          LEFT JOIN user u ON e.created_by = u.user_id
+          WHERE e.event_id = $event_id";
 $result = mysqli_query($conn, $query);
 $event = mysqli_fetch_assoc($result);
 
@@ -61,13 +64,17 @@ if (isset($_GET['register']) && !$is_registered && $event['slots'] > 0) {
         }
 
         .event-header {
-            background-image: url('uploads/<?php echo $event['image']; ?>');
-            background-size: cover;
-            background-position: center;
+            position: relative;
             height: 400px;
             border-radius: 20px;
-            position: relative;
+            overflow: hidden; 
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .event-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover no-repeat; 
         }
 
         .event-overlay {
@@ -75,7 +82,7 @@ if (isset($_GET['register']) && !$is_registered && $event['slots'] > 0) {
             top: 0;
             left: 0;
             right: 0;
-            bottom: 10px;
+            bottom: 0;
             background: rgba(0, 0, 0, 0.6);
             display: flex;
             flex-direction: column;
@@ -86,7 +93,6 @@ if (isset($_GET['register']) && !$is_registered && $event['slots'] > 0) {
 
         .event-title {
             font-size: 3em;
-            margin: 0;
         }
 
         .event-info {
@@ -134,6 +140,16 @@ if (isset($_GET['register']) && !$is_registered && $event['slots'] > 0) {
         }
 
         .event-description h2 {
+            margin-bottom: 20px;
+            color: #4a4e69;
+        }
+
+        .organizer-info {
+            margin-top: 40px;
+            color: #666;
+        }
+
+        .organizer-info h2 {
             margin-bottom: 20px;
             color: #4a4e69;
         }
@@ -203,6 +219,7 @@ if (isset($_GET['register']) && !$is_registered && $event['slots'] > 0) {
 <body>
     <div class="container">
         <div class="event-header">
+            <img src="uploads/<?php echo $event['image']; ?>" alt="<?php echo $event['event_name']; ?>" class="event-image">
             <div class="event-overlay">
                 <h1 class="event-title"><?php echo $event['event_name']; ?></h1>
             </div>
@@ -237,20 +254,35 @@ if (isset($_GET['register']) && !$is_registered && $event['slots'] > 0) {
                 <p><?php echo $event['description']; ?></p>
             </div>
 
-        </div>
-        <div class="button-group">
-                <a href="<?php echo ($from === 'eventhistory') ? 'event_history.php' : 'eventlist.php'; ?>" class="back-button">Back to <?php echo ($from === 'eventhistory') ? 'History' : 'Events'; ?></a>
-                
-                <!-- If the user is already registered, show a disabled button with same style -->
-                <?php if ($is_registered): ?>
-                    <span class="register-button disabled-button">You have Already Registered!</span>
-                <!-- If slots are 0, show a disabled button -->
-                <?php elseif ($event['slots'] <= 0): ?>
-                    <span class="register-button disabled-button">No More Slots Available</span>
-                <?php else: ?>
-                    <a href="javascript:void(0);" onclick="confirmRegistration()" class="register-button">Register Now</a>
-                <?php endif; ?>
+            <!-- Organizer Information Section -->
+            <div class="organizer-info">
+                <h2>Organizer Information</h2>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <i class="fas fa-user"></i>
+                        <span>Name : <?php echo $event['organizer_name']? $event['organizer_name'] : '<span style="color: red;">Deleted User</span>'; ?></span>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-envelope"></i>
+                        <span>Email : <?php echo $event['organizer_email']? $event['organizer_email'] : '<span style="color: red;">Deleted User</span>'; ?></span>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <div class="button-group">
+            <a href="javascript:void(0);" onclick="goBack();" class="back-button">Back</a>
+   
+            <!-- If the user is already registered, show a disabled button with same style -->
+            <?php if ($is_registered): ?>
+                <span class="register-button disabled-button">You have Already Registered!</span>
+            <!-- If slots are 0, show a disabled button -->
+            <?php elseif ($event['slots'] <= 0): ?>
+                <span class="register-button disabled-button">No More Slots Available</span>
+            <?php else: ?>
+                <a href="javascript:void(0);" onclick="confirmRegistration()" class="register-button">Register Now</a>
+            <?php endif; ?>
+        </div>
     </div>
 </body>
 </html>
@@ -260,6 +292,9 @@ if (isset($_GET['register']) && !$is_registered && $event['slots'] > 0) {
         if (confirm("Are you sure you want to register for this event?")) {
             window.location.href = 'event_details.php?id=<?php echo $event_id; ?>&register=true&from=<?php echo $from; ?>';
         }
+    }
+    function goBack() {
+        window.history.back(); 
     }
 </script>
 

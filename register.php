@@ -122,24 +122,16 @@
     <script>
         function validateForm() {
             // Get form field values
-            var username = document.getElementById("username").value;
             var email = document.getElementById("email").value;
             var password = document.getElementById("password").value;
             var confirmpassword = document.getElementById("confirmpassword").value;
             var telno = document.getElementById("telno").value;
-            var role = document.getElementById("role").value;
 
             // Regular expressions for validation
-            var usernameRegex = /^[a-zA-Z0-9]{3,15}$/; // Only alphanumeric, 3-15 characters
+
             var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email format
             var passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/; // At least one uppercase, one lowercase, one number, one special char, and 8 characters
             var phoneRegex = /^0[0-9]{9}$/; 
-
-            // Validate Username
-            if (!usernameRegex.test(username)) {
-                alert("Username must be 3-15 characters long and contain only letters and numbers.");
-                return false;
-            }
 
             // Validate Email
             if (!emailRegex.test(email)) {
@@ -162,12 +154,6 @@
             // Validate Phone Number
             if (!phoneRegex.test(telno)) {
                 alert("Please enter a valid phone number (e.g., 0161234567).");
-                return false;
-            }
-
-            // Validate Role selection
-            if (role === "") {
-                alert("Please select a role.");
                 return false;
             }
 

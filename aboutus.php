@@ -10,9 +10,10 @@ include 'header.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+
         }
 
         .about-section {
@@ -221,7 +222,7 @@ include 'header.php';
         <p class="title">Lecturer</p>
         <p>INTI enjoys fostering innovation and helping students succeed in tech.</p>
         <p>Inti@example.com</p>
-        <p><button class="button contactButton">Contact</button></p>
+        <p><a href="mailto:Inti@example.com" class="button contactButton">Contact</a></p>
       </div>
     </div>
   </div>

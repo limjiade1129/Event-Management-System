@@ -5,7 +5,7 @@ include 'header.php';
 // Fetch upcoming events sorted by date in ascending order
 $query = "SELECT * FROM events 
           WHERE date >= CURDATE() 
-          AND status = 'approved' 
+          AND status = 'Approved' 
           ORDER BY date ASC, start_time ASC";
 
 $result = mysqli_query($conn, $query);
@@ -56,10 +56,11 @@ $result = mysqli_query($conn, $query);
             width: 100%;
             height: 200px;
             object-fit: cover no-repeat;
+            border-radius: 12px 12px 0 0; 
         }
         .event-details {
             padding: 20px;
-            flex-grow: 1; /* Ensure event details take up the remaining space */
+            flex-grow: 1; 
             display: flex;
             flex-direction: column;
         }
@@ -125,9 +126,8 @@ $result = mysqli_query($conn, $query);
             cursor: pointer;
             transition: background-color 0.3s ease;
             font-weight: bold;
-            text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-top: auto; /* Push the button to the bottom */
+            margin-top: auto; 
             text-align: center;
         }
         .view-more:hover {
@@ -185,11 +185,11 @@ $result = mysqli_query($conn, $query);
                             </div>
                             <h2 class="event-name"><?php echo $event['event_name']; ?></h2>
                             <p class="event-info"><i class="fas fa-map-marker-alt"></i> <?php echo $event['location']; ?></p>
-                            <p class="event-info"><i class="far fa-calendar-alt"></i> <?php echo date("j F, Y", strtotime($event['date'])); ?></p>
+                            <p class="event-info"><i class="far fa-calendar-alt"></i> <?php echo date("j F Y", strtotime($event['date'])); ?></p>
                             <p class="event-info"><i class="far fa-clock"></i> <?php echo date("g:i A", strtotime($event['start_time'])); ?> - <?php echo date("g:i A", strtotime($event['end_time'])); ?></p>
                             <p class="event-description"><?php echo $event['description']; ?></p>
                             <button class="view-more">
-                                 <a href="event_details.php?id=<?php echo $event['event_id']; ?>&from=eventlist">View Details</a>
+                                 <a href="event_details.php?id=<?php echo $event['event_id']; ?>">View Details</a>
                             </button>
 
                         </div>

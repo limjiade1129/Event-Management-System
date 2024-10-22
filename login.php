@@ -25,7 +25,7 @@ if (isset($_POST['submit'])) {
             } elseif ($row["role"] == 'Organizer') {
                 header('Location: homepage.php'); // Redirect to organizer homepage
             }elseif ($row["role"] == 'Admin') {
-                header('Location: admin_dashboard.php'); // Redirect to organizer homepage
+                header('Location: admin/admin_dashboard.php'); // Redirect to Admin homepage
             }
 
             exit();

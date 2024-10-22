@@ -11,6 +11,8 @@ if (!isset($_SESSION["login"])) {
 $role = $_SESSION["role"];
 $user_id = $_SESSION["user_id"];
 
+// Get the current page's filename
+$current_page = basename($_SERVER['PHP_SELF']);
 ?>
 
 <!DOCTYPE html>
@@ -26,14 +28,13 @@ $user_id = $_SESSION["user_id"];
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f5f5f5; /* Light grey background for the website */
+            background-color: #f5f5f5;
         }
 
-        /* Header Styles */
         .header {
-            background-color: #fff; /* White background for the header */
+            background-color: #fff;
             padding: 15px 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -45,11 +46,10 @@ $user_id = $_SESSION["user_id"];
         .logo {
             font-size: 24px;
             font-weight: bold;
-            color: #007bff; /* Blue color for the logo */
+            color: #007bff;
             text-decoration: none;
         }
 
-        /* Navigation Styles */
         .navbar {
             display: flex;
             gap: 40px;
@@ -58,17 +58,18 @@ $user_id = $_SESSION["user_id"];
 
         .navbar a {
             text-decoration: none;
-            color: #333; 
+            color: #333;
             font-size: 16px;
             font-weight: 500;
             transition: color 0.3s;
         }
 
-        .navbar a:hover {
-            color: #007bff; 
+        .navbar a:hover,
+        .navbar a.active {
+            color: #007bff;
+
         }
 
-        /* User Dropdown Styles */
         .user-menu {
             position: relative;
             display: inline-block;
@@ -112,41 +113,30 @@ $user_id = $_SESSION["user_id"];
             transform: translateY(0);
         }
 
-        /* Responsive Styles */
-        @media (max-width: 768px) {
-            .navbar {
-                display: none; /* Hide navbar on smaller screens */
-            }
-            .header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-        }
     </style>
 </head>
 <body>
 
     <!-- Header -->
     <div class="header">
-        <a href="homepage.php" class="logo">EventGo</a> <!-- Logo -->
+        <a href="homepage.php" class="logo">EventGo</a>
 
         <!-- Navbar -->
         <div class="navbar">
-            <a href="homepage.php">Home</a>
-            <a href="eventlist.php">Event List</a>
-            <a href="event_history.php">Event History</a>
+            <a href="homepage.php" class="<?php echo ($current_page == 'homepage.php') ? 'active' : ''; ?>">Home</a>
+            <a href="eventlist.php" class="<?php echo ($current_page == 'eventlist.php') ? 'active' : ''; ?>">Event List</a>
+            <a href="event_history.php" class="<?php echo ($current_page == 'event_history.php') ? 'active' : ''; ?>">Event History</a>
 
             <?php if ($role === 'Organizer') : ?>
-                <a href="my_event.php">My Event</a>
+                <a href="my_event.php" class="<?php echo ($current_page == 'my_event.php') ? 'active' : ''; ?>">My Event</a>
             <?php endif; ?>
 
-            <a href="aboutus.php">About Us</a>
-
+            <a href="aboutus.php" class="<?php echo ($current_page == 'aboutus.php') ? 'active' : ''; ?>">About Us</a>
         </div>
 
         <!-- Dropdown Menu -->
         <div class="user-menu">
-            <i class="fas fa-user-circle user-icon" onclick="toggleDropdown()"></i> 
+            <i class="fas fa-user-circle user-icon" onclick="toggleDropdown()"></i>
             <div class="dropdown-content" id="userDropdown">
                 <a href="profile.php"><i class="fas fa-user"></i> My Profile</a>
                 <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
@@ -154,15 +144,12 @@ $user_id = $_SESSION["user_id"];
         </div>
     </div>
 
-    
     <script>
-        // Toggle dropdown menu
         function toggleDropdown() {
             var dropdown = document.getElementById("userDropdown");
             dropdown.classList.toggle("show");
         }
 
-        // Close the dropdown if the user clicks outside of it
         window.onclick = function(event) {
             if (!event.target.matches('.user-icon')) {
                 var dropdowns = document.getElementsByClassName("dropdown-content");

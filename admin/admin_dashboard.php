@@ -9,14 +9,22 @@ $organizer_count_query = "SELECT COUNT(*) AS total FROM user WHERE role = 'Organ
 $admin_count_query = "SELECT COUNT(*) AS total FROM user WHERE role = 'Admin'";
 $event_count_query = "SELECT COUNT(*) AS total FROM events";
 $upcoming_event_query = "SELECT COUNT(*) AS total FROM events WHERE date >= CURDATE()";
+$past_event_query = "SELECT COUNT(*) AS total FROM events WHERE date < CURDATE()";
+$pending_event_query = "SELECT COUNT(*) AS total FROM events WHERE status = 'Pending'";
+$approved_event_query = "SELECT COUNT(*) AS total FROM events WHERE status = 'Approved'";
 $feedback_count_query = "SELECT COUNT(*) AS total FROM feedback";
+$contact_us_count_query = "SELECT COUNT(*) AS total FROM contact_us";
 
 $user_count = mysqli_fetch_assoc(mysqli_query($conn, $user_count_query))['total'];
 $organizer_count = mysqli_fetch_assoc(mysqli_query($conn, $organizer_count_query))['total'];
 $admin_count = mysqli_fetch_assoc(mysqli_query($conn, $admin_count_query))['total'];
 $event_count = mysqli_fetch_assoc(mysqli_query($conn, $event_count_query))['total'];
 $upcoming_event_count = mysqli_fetch_assoc(mysqli_query($conn, $upcoming_event_query))['total'];
+$past_event_count = mysqli_fetch_assoc(mysqli_query($conn, $past_event_query))['total'];
+$pending_event_count = mysqli_fetch_assoc(mysqli_query($conn, $pending_event_query))['total'];
+$approved_event_count = mysqli_fetch_assoc(mysqli_query($conn, $approved_event_query))['total'];
 $feedback_count = mysqli_fetch_assoc(mysqli_query($conn, $feedback_count_query))['total'];
+$contact_us_count = mysqli_fetch_assoc(mysqli_query($conn, $contact_us_count_query))['total'];
 
 // Fetch average rating
 $average_rating_query = "SELECT AVG(rating) AS average_rating FROM feedback";
@@ -61,8 +69,8 @@ while ($row = mysqli_fetch_assoc($most_active_events_result)) {
         }
         /* Main Content Styles */
         .main-content {
-            margin-left: 300px;
-            padding: 60px 20px;
+            margin-left: 260px;
+            padding: 20px;
             width: calc(100% - 250px);
             transition: margin-left 0.3s, width 0.3s;
         }
@@ -73,9 +81,8 @@ while ($row = mysqli_fetch_assoc($most_active_events_result)) {
         }
 
         .main-content h1 {
-            margin-bottom: 20px;
-            font-size: 2em;
-            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 30px;
         }
 
         .stats-container {
@@ -129,7 +136,7 @@ while ($row = mysqli_fetch_assoc($most_active_events_result)) {
 
 <!-- Main Content -->
 <div class="main-content">
-    <h1>Welcome, Admin <?php echo $user_id ?></h1>
+    <h1>Welcome, Admin</h1>
     <div class="stats-container">
         <div class="stat-card">
             <i class="fas fa-users"></i>
@@ -139,7 +146,6 @@ while ($row = mysqli_fetch_assoc($most_active_events_result)) {
                 <span>Users: <?php echo $user_count; ?></span> | 
                 <span>Organizers: <?php echo $organizer_count; ?></span> |
                 <span>Admin: <?php echo $admin_count; ?></span>
-                
             </div>
         </div>
         <div class="stat-card">
@@ -147,7 +153,16 @@ while ($row = mysqli_fetch_assoc($most_active_events_result)) {
             <h3>Total Events</h3>
             <p><?php echo $event_count; ?></p>
             <div class="sub-details">
-                <span>Upcoming: <?php echo $upcoming_event_count; ?></span>
+                <span>Upcoming: <?php echo $upcoming_event_count; ?></span> | 
+                <span>Past: <?php echo $past_event_count; ?></span>
+            </div>
+        </div>
+        <div class="stat-card">
+            <i class="fas fa-tasks"></i>
+            <h3>Event Status</h3>
+            <div class="sub-details">
+                <span>Pending: <?php echo $pending_event_count; ?></span> | 
+                <span>Approved: <?php echo $approved_event_count; ?></span>
             </div>
         </div>
         <div class="stat-card">
@@ -162,6 +177,13 @@ while ($row = mysqli_fetch_assoc($most_active_events_result)) {
             <h3>Average Rating</h3>
             <p><?php echo number_format($average_rating, 1); ?> / 5</p>
         </div>
+
+        <!-- Contact Us Card -->
+        <div class="stat-card">
+            <i class="fas fa-envelope"></i>
+            <h3>Total Contact Us</h3>
+            <p><?php echo $contact_us_count; ?></p>
+        </div>
         <!-- Feedback Distribution Chart -->
         <div class="stat-card">
             <canvas id="feedbackDistributionChart"></canvas>
@@ -170,30 +192,23 @@ while ($row = mysqli_fetch_assoc($most_active_events_result)) {
         <div class="stat-card">
             <canvas id="mostActiveEventsChart"></canvas>
         </div>
-    </div>
 
-    
+    </div>
 </div>
 
-
 <script>
+    const allRatings = [1, 2, 3, 4, 5];
+    const feedbackDistribution = <?php echo json_encode($feedback_distribution); ?>;
+
+    const feedbackData = allRatings.map(rating => feedbackDistribution[rating] || 0);
+
     // Feedback Distribution Data
     const feedbackDistributionData = {
-        labels: <?php echo json_encode(array_keys($feedback_distribution)); ?>,
+        labels: allRatings.map(rating => `${rating}`), // Display as "Rating 1", "Rating 2", etc.
         datasets: [{
             label: 'Number of Feedbacks',
-            data: <?php echo json_encode(array_values($feedback_distribution)); ?>,
-            backgroundColor: ['#3498db', '#e74c3c', '#f39c12', '#2ecc71', '#9b59b6'],
-        }]
-    };
-
-    // Most Active Events Data
-    const mostActiveEventsData = {
-        labels: <?php echo json_encode(array_column($most_active_events, 'event_name')); ?>,
-        datasets: [{
-            label: 'Feedback Count',
-            data: <?php echo json_encode(array_column($most_active_events, 'feedback_count')); ?>,
-            backgroundColor: '#3498db',
+            data: feedbackData,
+            backgroundColor: ['#3498db'],
         }]
     };
 
@@ -206,10 +221,37 @@ while ($row = mysqli_fetch_assoc($most_active_events_result)) {
             responsive: true,
             plugins: {
                 legend: { display: true, position: 'top' },
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Ratings'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Number of Feedbacks'
+                    },
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1 
+                    }
+                }
             }
         }
     });
 
+     // Most Active Events Data
+     const mostActiveEventsData = {
+        labels: <?php echo json_encode(array_column($most_active_events, 'event_name')); ?>,
+        datasets: [{
+            label: 'Feedback Count',
+            data: <?php echo json_encode(array_column($most_active_events, 'feedback_count')); ?>,
+            backgroundColor: '#3498db',
+        }]
+    };
     // Render Most Active Events Chart
     const eventsCtx = document.getElementById('mostActiveEventsChart').getContext('2d');
     new Chart(eventsCtx, {
@@ -219,6 +261,24 @@ while ($row = mysqli_fetch_assoc($most_active_events_result)) {
             responsive: true,
             plugins: {
                 legend: { display: true, position: 'top' },
+            },
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Event Name'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Number of Feedback'
+                    },
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1 
+                    }
+                }
             }
         }
     });

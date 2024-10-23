@@ -27,6 +27,7 @@ if (!empty($selected_event_id)) {
 
 $stmt->execute();
 $feedback_result = $stmt->get_result();
+$has_feedback = $feedback_result->num_rows > 0; // Check if there is any feedback
 
 // Set feedback preview length
 $feedback_preview_length = 100;
@@ -103,6 +104,12 @@ $feedback_preview_length = 100;
             cursor: pointer;
             text-decoration: underline;
         }
+        .no-results {
+            text-align: center;
+            color: red;
+            font-size: 1em;
+            display: <?php echo $has_feedback ? 'none' : 'table-row'; ?>; 
+        }
     </style>
 </head>
 <body>
@@ -120,8 +127,8 @@ $feedback_preview_length = 100;
                     <?php echo $event['event_name']; ?>
                 </option>
             <?php endwhile; ?>
-            <input type="text" id="searchInput" class="form-control ml-3" placeholder="Search..." onkeyup="searchTable()" style="width: 250px;">
         </select>
+        <input type="text" id="searchInput" class="form-control ml-3" placeholder="Search..." onkeyup="searchTable()" style="width: 250px;">
     </div>
 
     <!-- Feedback Table -->
@@ -139,36 +146,42 @@ $feedback_preview_length = 100;
                 <th>Actions</th>
             </tr>
         </thead>
-        <tbody id="eventTableBody">
+        <tbody id="tableBody">
             <?php 
-            $no = 1;
-            while ($feedback = mysqli_fetch_assoc($feedback_result)): ?>
-            <tr>
-                <td><?php echo $no++; ?></td>
-                <td><?php echo $feedback['feedback_id']; ?></td>
-                <td><?php echo $feedback['event_id']; ?></td>
-                <td><?php echo $feedback['event_name']; ?></td>
-                <td><?php echo $feedback['username'] ? $feedback['username'] : '<span style="color: red;">Deleted User</span>'; ?></td>
-                <td>
-                    <?php
-                    if (strlen($feedback['feedback']) > $feedback_preview_length) {
-                        $short_feedback = substr($feedback['feedback'], 0, $feedback_preview_length);
-                        $full_feedback = $feedback['feedback'];
-                        echo '<span class="short-feedback">' . $short_feedback . '...</span>';
-                        echo '<span class="full-feedback" style="display:none;">' . $full_feedback . '</span>';
-                        echo '<a href="javascript:void(0)" class="toggle-feedback" onclick="toggleFeedback(this)"> Read More</a>';
-                    } else {
-                        echo $feedback['feedback'];
-                    }
-                    ?>
-                </td>
-                <td><?php echo $feedback['rating']; ?>/5</td>
-                <td><?php echo $feedback['time_created']; ?></td>
-                <td>
-                    <a href="delete_feedback.php?id=<?php echo $feedback['feedback_id']; ?>" class="delete-button" onclick="return confirm('Are you sure you want to delete this feedback?')">Delete</a>
-                </td>
+            if ($has_feedback):
+                $no = 1;
+                while ($feedback = mysqli_fetch_assoc($feedback_result)): ?>
+                <tr>
+                    <td><?php echo $no++; ?></td>
+                    <td><?php echo $feedback['feedback_id']; ?></td>
+                    <td><?php echo $feedback['event_id']; ?></td>
+                    <td><?php echo $feedback['event_name']; ?></td>
+                    <td><?php echo $feedback['username'] ? $feedback['username'] : '<span style="color: red;">Deleted User</span>'; ?></td>
+                    <td>
+                        <?php
+                        if (strlen($feedback['feedback']) > $feedback_preview_length) {
+                            $short_feedback = substr($feedback['feedback'], 0, $feedback_preview_length);
+                            $full_feedback = $feedback['feedback'];
+                            echo '<span class="short-feedback">' . $short_feedback . '...</span>';
+                            echo '<span class="full-feedback" style="display:none;">' . $full_feedback . '</span>';
+                            echo '<a href="javascript:void(0)" class="toggle-feedback" onclick="toggleFeedback(this)"> Read More</a>';
+                        } else {
+                            echo $feedback['feedback'];
+                        }
+                        ?>
+                    </td>
+                    <td><?php echo $feedback['rating']; ?>/5</td>
+                    <td><?php echo $feedback['time_created']; ?></td>
+                    <td>
+                        <a href="delete_feedback.php?id=<?php echo $feedback['feedback_id']; ?>" class="delete-button" onclick="return confirm('Are you sure you want to delete this feedback?')">Delete</a>
+                    </td>
+                </tr>
+                <?php endwhile; ?>
+            <?php endif; ?>
+            <!-- No Results Row -->
+            <tr id="noResultsRow" class="no-results">
+                <td colspan="9">No feedback found.</td>
             </tr>
-            <?php endwhile; ?>
         </tbody>
     </table>
 </div>
@@ -185,15 +198,22 @@ $feedback_preview_length = 100;
     }
 
     function searchTable() {
-        var input, filter, table, rows, td, i, j, txtValue;
+        var input, filter, table, rows, td, i, j, txtValue, hasVisibleRows;
         input = document.getElementById("searchInput");
         filter = input.value.toLowerCase();
-        table = document.getElementById("eventTableBody");
+        table = document.getElementById("tableBody");
         rows = table.getElementsByTagName("tr");
+        hasVisibleRows = false; // Variable to track if any row is visible
 
         for (i = 0; i < rows.length; i++) {
             var isVisible = false;
             td = rows[i].getElementsByTagName("td");
+
+            // Skip the "No results" row during the search
+            if (rows[i].id === "noResultsRow") {
+                continue;
+            }
+
             for (j = 0; j < td.length; j++) {
                 if (td[j]) {
                     txtValue = td[j].textContent || td[j].innerText;
@@ -203,8 +223,18 @@ $feedback_preview_length = 100;
                     }
                 }
             }
+
+            // Show or hide the current row based on the search result
             rows[i].style.display = isVisible ? "" : "none";
+
+            // If a row is visible and it's not the "No results" row, mark hasVisibleRows as true
+            if (isVisible) {
+                hasVisibleRows = true;
+            }
         }
+
+        // Show or hide the "No results found" row
+        document.getElementById("noResultsRow").style.display = hasVisibleRows ? "none" : "table-row";
     }
 
     function toggleFeedback(element) {

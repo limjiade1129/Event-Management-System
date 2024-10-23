@@ -12,6 +12,7 @@ if ($role_filter) {
     $user_query = "SELECT * FROM user";
 }
 $user_result = mysqli_query($conn, $user_query);
+$has_events = mysqli_num_rows($user_result) > 0;
 ?>
 
 <!DOCTYPE html>
@@ -119,6 +120,12 @@ $user_result = mysqli_query($conn, $user_query);
         .delete-button:hover {
             background-color: #c0392b;
         }
+        .no-results {
+            text-align: center;
+            color: red;
+            font-size: 1em;
+            display: <?php echo $has_events ? 'none' : 'table-row'; ?>; /* Show if no events */
+        }
     </style>
 </head>
 <body>
@@ -153,7 +160,7 @@ $user_result = mysqli_query($conn, $user_query);
                 <th>Actions</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="userTableBody">
             <?php 
             $no = 1;
             while($user = mysqli_fetch_assoc($user_result)): ?>
@@ -219,6 +226,10 @@ $user_result = mysqli_query($conn, $user_query);
             </div>
 
             <?php endwhile; ?>
+            <!-- No Results Row -->
+            <tr id="noResultsRow" class="no-results">
+                <td colspan="12">No users found.</td>
+            </tr>
         </tbody>
     </table>
 </div>
@@ -280,15 +291,22 @@ $user_result = mysqli_query($conn, $user_query);
 
 <script>
     function searchTable() {
-        var input, filter, table, rows, td, i, j, txtValue;
+        var input, filter, table, rows, td, i, j, txtValue, hasVisibleRows;
         input = document.getElementById("searchInput");
         filter = input.value.toLowerCase();
         table = document.getElementById("userTableBody");
         rows = table.getElementsByTagName("tr");
+        hasVisibleRows = false; // Variable to track if any row is visible
 
         for (i = 0; i < rows.length; i++) {
             var isVisible = false;
             td = rows[i].getElementsByTagName("td");
+
+            // Skip the "No results" row during the search
+            if (rows[i].id === "noResultsRow") {
+                continue;
+            }
+
             for (j = 0; j < td.length; j++) {
                 if (td[j]) {
                     txtValue = td[j].textContent || td[j].innerText;
@@ -298,8 +316,18 @@ $user_result = mysqli_query($conn, $user_query);
                     }
                 }
             }
+
+            // Show or hide the current row based on the search result
             rows[i].style.display = isVisible ? "" : "none";
+
+            // If a row is visible, mark hasVisibleRows as true
+            if (isVisible) {
+                hasVisibleRows = true;
+            }
         }
+
+        // Show or hide the "No results found" row
+        document.getElementById("noResultsRow").style.display = hasVisibleRows ? "none" : "table-row";
     }
     
     function filterUsers() {

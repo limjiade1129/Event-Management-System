@@ -19,6 +19,7 @@ if ($status_filter === 'Pending') {
                     LEFT JOIN user ON events.created_by = user.user_id";
 }
 $event_result = mysqli_query($conn, $event_query);
+$has_events = mysqli_num_rows($event_result) > 0;
 ?>
 
 <!DOCTYPE html>
@@ -126,6 +127,12 @@ $event_result = mysqli_query($conn, $event_query);
         .view-button:hover {
             background-color: #e67e22;
         }
+        .no-results {
+            text-align: center;
+            color: red;
+            font-size: 1em;
+            display: <?php echo $has_events ? 'none' : 'table-row'; ?>;
+        }
     </style>
 </head>
 <body>
@@ -188,6 +195,10 @@ $event_result = mysqli_query($conn, $event_query);
                 </td>
             </tr>
             <?php endwhile; ?>
+            <!-- No Results Row -->
+            <tr id="noResultsRow" class="no-results">
+                <td colspan="12">No events found.</td>
+            </tr>
         </tbody>
     </table>
 </div>
@@ -314,15 +325,22 @@ $event_result = mysqli_query($conn, $event_query);
     }
 
     function searchTable() {
-        var input, filter, table, rows, td, i, j, txtValue;
+        var input, filter, table, rows, td, i, j, txtValue, hasVisibleRows;
         input = document.getElementById("searchInput");
         filter = input.value.toLowerCase();
         table = document.getElementById("eventTableBody");
         rows = table.getElementsByTagName("tr");
+        hasVisibleRows = false; // Variable to track if any row is visible
 
         for (i = 0; i < rows.length; i++) {
             var isVisible = false;
             td = rows[i].getElementsByTagName("td");
+
+            // Skip the "No results" row during the search
+            if (rows[i].id === "noResultsRow") {
+                continue;
+            }
+
             for (j = 0; j < td.length; j++) {
                 if (td[j]) {
                     txtValue = td[j].textContent || td[j].innerText;
@@ -332,10 +350,19 @@ $event_result = mysqli_query($conn, $event_query);
                     }
                 }
             }
-            rows[i].style.display = isVisible ? "" : "none";
-        }
-    }
 
+            // Show or hide the current row based on the search result
+            rows[i].style.display = isVisible ? "" : "none";
+
+            // If a row is visible, mark hasVisibleRows as true
+            if (isVisible) {
+                hasVisibleRows = true;
+            }
+        }
+
+        // Show or hide the "No results found" row
+        document.getElementById("noResultsRow").style.display = hasVisibleRows ? "none" : "table-row";
+    }
 </script>
 
 </body>

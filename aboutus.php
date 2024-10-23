@@ -234,7 +234,7 @@ include 'header.php';
     <form action="process_contact.php" method="post">
         <input type="text" id="name" name="name" placeholder="Your name..." required>
         <input type="email" id="email" name="email" placeholder="Your email..." required>
-        <input type="text" id="subject" name="subject" placeholder="Your subject..." required>
+        <input type="text" id="title" name="title" placeholder="Your title..." required>
         <textarea id="msg" name="msg" placeholder="Write something..." style="height:150px" required></textarea>
         <input type="submit" class="btn" value="Submit">
     </form>

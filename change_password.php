@@ -101,7 +101,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .edit-profile button {
-            background-color: #007bff;
+            background-color: #3498db;
             color: white;
             padding: 12px 30px;
             border: none;
@@ -114,7 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .edit-profile button:hover {
-            background-color: #0056b3;
+            background-color: #2980b9;
             box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
         }
 

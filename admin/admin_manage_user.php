@@ -204,6 +204,10 @@ $has_events = mysqli_num_rows($user_result) > 0;
                                     <input type="email" class="form-control" name="email" value="<?php echo $user['email']; ?>" required>
                                 </div>
                                 <div class="form-group">
+                                    <label for="edit_password">Password (leave empty to keep current password):</label>
+                                    <input type="password" class="form-control" name="password" id="edit_password">
+                                </div>
+                                <div class="form-group">
                                     <label for="edit_telno">Tel No</label>
                                     <input type="text" class="form-control" name="telno" value="<?php echo $user['telno']; ?>" required>
                                 </div>
@@ -373,10 +377,12 @@ $has_events = mysqli_num_rows($user_result) > 0;
     // Get form field values for Edit User from the specific form
     var editModal = document.querySelector('.modal.show');
     var email = editModal.querySelector("[name='email']").value;
+    var password = editModal.querySelector("[name='password']").value;
     var telno = editModal.querySelector("[name='telno']").value;
 
     // Regular expressions for validation
     var emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    var passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/; // At least one uppercase, one lowercase, one number, one special char, and 8 characters
     var phoneRegex = /^0[0-9]{9}$/; 
 
     // Validate Email
@@ -388,6 +394,12 @@ $has_events = mysqli_num_rows($user_result) > 0;
     // Validate Phone Number
     if (!phoneRegex.test(telno)) {
         alert("Please enter a valid phone number (e.g., 0161234567).");
+        return false;
+    }
+
+    // Validate Password only if a new password is entered
+    if (password !== "" && !passwordRegex.test(password)) {
+        alert("Password must be at least 8 characters long, including an uppercase letter, a lowercase letter, a number, and a special character.");
         return false;
     }
 

@@ -26,11 +26,23 @@ $role = $user_data['role'];
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
-            background-color: #e9ecef;
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
             color: #333;
+        }
+        .container {
+            flex: 1; 
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
         .profile-container {
@@ -84,8 +96,8 @@ $role = $user_data['role'];
         }
 
         .button-container button {
-            background-color: #007bff;
-            color: white;
+            background-color: #3498db!important;
+            color: white !important;
             padding: 12px 20px;
             border: none;
             border-radius: 50px;
@@ -96,7 +108,7 @@ $role = $user_data['role'];
         }
 
         .button-container button:hover {
-            background-color: #0056b3;
+            background-color: #2980b9 !important;
             box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
         }
 
@@ -170,5 +182,7 @@ $role = $user_data['role'];
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 </body>
 </html>
+
+<?php include"footer.php" ?>
 
 

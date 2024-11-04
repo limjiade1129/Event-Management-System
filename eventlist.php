@@ -18,15 +18,23 @@ $result = mysqli_query($conn, $query);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event List</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f2f5;
             color: #333;
         }
         .container {
+            flex: 1; 
             max-width: 1200px;
             margin: 0 auto;
+            padding: 20px;
         }
         h1 {
             text-align: center;
@@ -45,7 +53,7 @@ $result = mysqli_query($conn, $query);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Make sure the button is always at the bottom */
+            justify-content: space-between;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
         .event-card:hover {
@@ -94,9 +102,9 @@ $result = mysqli_query($conn, $query);
             color: #666;
             margin: 15px 0;
             line-height: 1.4;
-            flex-grow: 1; /* Make the description expand to take the available space */
+            flex-grow: 1;
             display: -webkit-box;
-            -webkit-line-clamp: 2; /* Limit the text to 3 lines */
+            -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -164,24 +172,35 @@ $result = mysqli_query($conn, $query);
         .search-button:hover {
             background-color: #2980b9;
         }
+        #no-results {
+            display: none;
+            text-align: center;
+            font-size: 1.0em;
+            color: #e74c3c;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Upcoming Events</h1>
         <div class="search-bar">
-            <input type="text" class="search-input" placeholder="Search for events...">
-            <button class="search-button">Search</button>
+            <input type="text" id="search-input" class="search-input" placeholder="Search for events...">
+            <button class="search-button" onclick="filterEvents()">Search</button>
         </div>
-        <div class="event-list">
+        <div id="no-results">Event not found!</div>
+        <div id="event-list" class="event-list">
             <?php if (mysqli_num_rows($result) > 0): ?>
                 <?php while ($event = mysqli_fetch_assoc($result)): ?>
-                    <div class="event-card">
+                    <div class="event-card" 
+                         data-name="<?php echo strtolower($event['event_name']); ?>" 
+                         data-type="<?php echo strtolower($event['event_type']); ?>" 
+                         data-date="<?php echo strtolower(date("j F Y", strtotime($event['date']))); ?>">
                         <img src="uploads/<?php echo $event['image']; ?>" alt="<?php echo $event['event_name']; ?>" class="event-image">
                         <div class="event-details">
                             <div class="event-header">
                                 <span class="event-type"><?php echo $event['event_type']; ?></span>
-                                <span class="event-slots">Slots left: <?php echo $event['slots']; ?></span> <!-- Slots section aligned right -->
+                                <span class="event-slots">Slots left: <?php echo $event['slots']; ?></span>
                             </div>
                             <h2 class="event-name"><?php echo $event['event_name']; ?></h2>
                             <p class="event-info"><i class="fas fa-map-marker-alt"></i> <?php echo $event['location']; ?></p>
@@ -191,7 +210,6 @@ $result = mysqli_query($conn, $query);
                             <button class="view-more">
                                  <a href="event_details.php?id=<?php echo $event['event_id']; ?>">View Details</a>
                             </button>
-
                         </div>
                     </div>
                 <?php endwhile; ?>
@@ -200,9 +218,33 @@ $result = mysqli_query($conn, $query);
             <?php endif; ?>
         </div>
     </div>
+
+    <script>
+        function filterEvents() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const eventCards = document.querySelectorAll('.event-card');
+            let hasResults = false;
+
+            eventCards.forEach(card => {
+                const name = card.getAttribute('data-name');
+                const type = card.getAttribute('data-type');
+                const date = card.getAttribute('data-date');
+
+                if (name.includes(searchTerm) || type.includes(searchTerm) || date.includes(searchTerm)) {
+                    card.style.display = 'block';
+                    hasResults = true;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            document.getElementById('no-results').style.display = hasResults ? 'none' : 'block';
+        }
+    </script>
 </body>
 </html>
 
 <?php
+include "footer.php";
 mysqli_close($conn);
 ?>

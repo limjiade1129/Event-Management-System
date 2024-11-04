@@ -1,6 +1,23 @@
 <?php
 $title = "About Us"; 
 include 'header.php'; 
+
+// Redirect to login if not logged in
+if (!isset($_SESSION["login"])) {
+    header("Location: login.php");
+    exit();
+}
+
+$user_id = $_SESSION['user_id'];
+
+// Fetch user's information from the database
+$query = "SELECT username, email FROM user WHERE user_id = $user_id";
+$result = mysqli_query($conn, $query);
+$user = mysqli_fetch_assoc($result);
+
+$username = $user['username'];
+$email = $user['email'];
+
 ?>
 
 <!DOCTYPE html>
@@ -8,12 +25,18 @@ include 'header.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
+        body,html{
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f2f5;
             color: #333;
-
+        }
+        .container {
+            flex: 1; 
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
         .about-section {
@@ -61,16 +84,17 @@ include 'header.php';
             display: flex;
             justify-content: center;
             flex-wrap: wrap;
-            margin-top: 40px;
+            margin-top: 10px;
         }
 
         .column {
             flex: 0 0 30%;
             margin: 16px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             border-radius: 10px;
             overflow: hidden;
             transition: 0.3s;
+            background-color: #fff;
         }
 
         .column:hover {
@@ -80,38 +104,26 @@ include 'header.php';
         .card {
             padding: 8px;
             text-align: center;
+            background-color: #fff;
+            border: none;
         }
 
         .card img {
-            width: 300px;
-            height: 250px;
-            object-fit: cover no-repeat;
+            width: 250px;
+            height: 200px;  
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+            margin: 0 auto;
         }
 
-        .container {
+        .team-container {
             padding: 10px;
         }
 
-        .container h2 {
+        .team-container h2 {
             margin-bottom: 10px;
             font-size: 1.5rem;
-        }
-
-        .button {
-            border: none;
-            outline: 0;
-            display: inline-block;
-            padding: 8px;
-            color: white;
-            background-color: #000;
-            text-align: center;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .button:hover {
-            background-color: #555;
         }
 
         .contact-container {
@@ -147,8 +159,8 @@ include 'header.php';
         }
 
         input[type=submit] {
-            background-color: #007bff;
-            color: white;
+            background-color: #3498db;
+            color: white !important;
             padding: 14px 20px;
             border: none;
             border-radius: 6px;
@@ -158,7 +170,7 @@ include 'header.php';
         }
 
         input[type=submit]:hover {
-            background-color: #0056b3;
+            background-color: #2980b9 !important; 
             box-shadow: 0 4px 12px rgba(0, 91, 187, 0.3);
         }
 
@@ -197,18 +209,17 @@ include 'header.php';
     <img src="img/background1.jpg" alt="Our Story">
 </div>
 
-<h2 style="text-align:center">Our Team</h2>
+<h2 style="text-align:center ; margin-top:30px">Our Team</h2>
 <div class="row">
   <!-- Team member 1 -->
   <div class="column">
     <div class="card">
       <img src="img/member1.jpeg" alt="Lim">
-      <div class="container">
+      <div class="team-container">
         <h2>Lim Jia De</h2>
         <p class="title">Lecturer</p>
         <p>Lim is passionate about guiding students and providing the support they need.</p>
         <p>Lim@example.com</p>
-        <p><button class="button contactButton">Contact</button></p>
       </div>
     </div>
   </div>
@@ -217,12 +228,11 @@ include 'header.php';
   <div class="column">
     <div class="card">
       <img src="img/member2.jpg" alt="Ooh">
-      <div class="container">
+      <div class="team-container">
         <h2>INTI College</h2>
         <p class="title">Lecturer</p>
         <p>INTI enjoys fostering innovation and helping students succeed in tech.</p>
         <p>Inti@example.com</p>
-        <p><a href="mailto:Inti@example.com" class="button contactButton">Contact</a></p>
       </div>
     </div>
   </div>
@@ -231,14 +241,15 @@ include 'header.php';
 
 <div class="contact-container" id="contact">
     <h2>Contact Us</h2>
-    <form action="process_contact.php" method="post">
-        <input type="text" id="name" name="name" placeholder="Your name..." required>
-        <input type="email" id="email" name="email" placeholder="Your email..." required>
+    <form action="handle_contactus.php" method="post" onsubmit="return validateForm()">
+        <input type="text" id="username" name="username" value="<?php echo $username; ?>" placeholder="Your username..." required>
+        <input type="email" id="email" name="email" value="<?php echo $email; ?>" placeholder="Your email..." required>
         <input type="text" id="title" name="title" placeholder="Your title..." required>
         <textarea id="msg" name="msg" placeholder="Write something..." style="height:150px" required></textarea>
         <input type="submit" class="btn" value="Submit">
     </form>
 </div>
+
 
 <div class="map-container">
     <h2 style="text-align: center; margin-bottom: 20px;">Our Location</h2>
@@ -248,5 +259,20 @@ include 'header.php';
     </div>
 </div>
 
+<script>
+    function validateForm() {
+        var email = document.getElementById("email").value;
+        var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
+        if (!emailRegex.test(email)) {
+            alert("Please enter a valid email address.");
+            return false;
+        }
+        return true;
+    }
+</script>
+
 </body>
 </html>
+
+<?php include 'footer.php';?>

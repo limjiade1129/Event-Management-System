@@ -127,7 +127,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <a href="eventlist.php" class="<?php echo ($current_page == 'eventlist.php') ? 'active' : ''; ?>">Event List</a>
             <a href="event_history.php" class="<?php echo ($current_page == 'event_history.php') ? 'active' : ''; ?>">Event History</a>
 
-            <?php if ($role === 'Organizer') : ?>
+            <?php if ($role === 'Organizer' || $role === 'Admin') : ?>
                 <a href="my_event.php" class="<?php echo ($current_page == 'my_event.php') ? 'active' : ''; ?>">My Event</a>
             <?php endif; ?>
 

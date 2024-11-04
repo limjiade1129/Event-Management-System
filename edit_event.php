@@ -228,18 +228,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     function validateForm() {
         // Get form fields
-        const dateField = document.getElementById('date').value;
         const startTimeField = document.getElementById('start_time').value;
         const endTimeField = document.getElementById('end_time').value;
 
         // Get current date in the format YYYY-MM-DD
         const today = new Date().toISOString().split('T')[0];
-
-        // Check if the date is in the past
-        if (dateField < today) {
-            alert("Event date cannot be before today's date.");
-            return false;
-        }
 
         // Check if the start time is after the end time
         if (startTimeField >= endTimeField) {

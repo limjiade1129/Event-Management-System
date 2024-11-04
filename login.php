@@ -56,15 +56,19 @@ if (isset($_POST['submit'])) {
             align-items: center;
             height: 90vh;
             margin: 0;
-            flex-direction: column; /* Align items in column to show the title above */
+            flex-direction: column;
         }
         .title {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin-bottom: 30px;
             text-align: center;
             font-size: 20px;
             font-weight: bold;
-            text-decoration: none;
             color: #007bff;
+            text-decoration: none;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+            letter-spacing: 1.5px;
+
         }
         .login-form {
             background-color: white;
@@ -82,12 +86,12 @@ if (isset($_POST['submit'])) {
             margin: 10px 0;
         }
         .input-container input {
-            width: 100%; /* Make input width 100% of container */
-            padding: 10px 10px 10px 35px; /* Adjust padding for left icon */
-            padding-right: 40px; /* Extra padding for the icon on the right */
+            width: 100%; 
+            padding: 10px 10px 10px 35px; 
+            padding-right: 40px; 
             border: 1px solid #ddd;
             border-radius: 5px;
-            box-sizing: border-box; /* Include padding and border in element's total width and height */
+            box-sizing: border-box;
         }
         .input-container i {
             position: absolute;
@@ -149,7 +153,6 @@ if (isset($_POST['submit'])) {
     <!-- Added Title -->
     <div class="title">
         <h1>EventGo - Event Management System</h1>
-
     </div>
     
     <div class="login-form">
@@ -171,7 +174,7 @@ if (isset($_POST['submit'])) {
         <?php if (isset($error)) { echo '<p class="error">' . $error . '</p>'; } ?>
 
         <div class="links">
-            <p>Don't have an account? <a href="register.php">Sign up</a></p>
+            <p>Don't have an account? <a href="register.php">Register Now </a></p>
             <p><a href="forgot_password.php">Forgot Password?</a></p>
         </div>
     </div>

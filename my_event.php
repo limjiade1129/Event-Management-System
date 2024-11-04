@@ -22,15 +22,23 @@ $result = $stmt->get_result();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Events</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
+        body,html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f2f5;
             color: #333;
         }
         .container {
+            flex: 1; 
             max-width: 1200px;
             margin: 0 auto;
+            padding: 20px;
         }
         h1 {
             text-align: center;
@@ -41,8 +49,8 @@ $result = $stmt->get_result();
         .create-event-button {
             display: block;
             text-align: center;
-            background-color: #3498db;
-            color: white;
+            background-color: #3498db !important;
+            color: white !important;
             padding: 10px 20px;
             border-radius: 25px;
             text-decoration: none;
@@ -51,7 +59,7 @@ $result = $stmt->get_result();
             transition: background-color 0.3s ease;
         }
         .create-event-button:hover {
-            background-color: #2980b9;
+            background-color: #2980b9 !important;
         }
         .event-list {
             display: grid;
@@ -137,8 +145,8 @@ $result = $stmt->get_result();
             text-overflow: ellipsis;
         }
         .view-more {
-            background-color: #3498db;
-            color: white;
+            background-color: #3498db !important;
+            color: white !important;
             border: none;
             padding: 10px 20px;
             border-radius: 25px;
@@ -150,11 +158,11 @@ $result = $stmt->get_result();
             text-align: center;
         }
         .view-more:hover {
-            background-color: #2980b9;
+            background-color: #2980b9 !important;
         }
         .view-more a {
             text-decoration: none;
-            color: white;
+            color: white !important;
         }
         .event-status {
             display: inline-block;
@@ -184,8 +192,8 @@ $result = $stmt->get_result();
         .edit-button, .delete-button {
             flex: 1;
             text-align: center;
-            background-color: #3498db;
-            color: white;
+            background-color: #3498db !important;
+            color: white !important;
             padding: 10px;
             border-radius: 25px;
             text-decoration: none;
@@ -193,17 +201,20 @@ $result = $stmt->get_result();
             transition: background-color 0.3s ease;
         }
         .edit-button:hover {
-            background-color: #2980b9;
+            background-color: #2980b9 !important;
         }
         .delete-button {
-            background-color: #e74c3c;
+            background-color: #e74c3c !important;
         }
         .delete-button:hover {
-            background-color: #c0392b;
+            background-color: #c0392b !important;
         }
         .no-events-message {
+            grid-column: span 3; 
             text-align: center;
-            font-size: 1.2em;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1em;
             margin-top: 20px;
             color: #555;
         }
@@ -258,6 +269,7 @@ $result = $stmt->get_result();
 </html>
 
 <?php
+include "footer.php";
 $stmt->close();
 $conn->close();
 ?>

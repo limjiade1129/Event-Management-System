@@ -23,10 +23,21 @@ $upcoming_events_result = mysqli_query($conn, $upcoming_events_query);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f2f5;
             color: #333;
+        }
+        .container {
+            flex: 1; 
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
         .carousel-container {
             position: relative;
@@ -133,6 +144,10 @@ $upcoming_events_result = mysqli_query($conn, $upcoming_events_query);
             margin-top: 20px;
         }
 
+        .stats-card:hover{
+            transform: translateY(-10px);
+        }
+
         .stats-card {
             background-color: white;
             padding: 30px;
@@ -205,6 +220,10 @@ $upcoming_events_result = mysqli_query($conn, $upcoming_events_query);
 
         .up-card .btn:hover {
             background-color: #2980b9;
+        }
+
+        .up-card:hover{
+            transform: translateY(-10px);
         }
         
 
@@ -294,7 +313,7 @@ $upcoming_events_result = mysqli_query($conn, $upcoming_events_query);
                     </div>
                 </div>
                 <div class="carousel-item">
-                    <img src="img/slider3.jpg" class="d-block w-100" alt="Slide 3">
+                    <img src="img/slider3.png" class="d-block w-100" alt="Slide 3">
                     <div class="carousel-caption d-none d-md-block">
                         <div class="hero-content">
                             <h1>Inspiring Journeys</h1>
@@ -382,13 +401,11 @@ $upcoming_events_result = mysqli_query($conn, $upcoming_events_query);
         </div>
     </div>
 
-    <!-- About Us Section -->
-    <div class="about-us-section">
-        <h2>Learn More About Us</h2>
-        <p>Find out more about our mission, values, and the team behind this platform.</p>
-        <a href="aboutus.php">About Us</a>
-    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js"></script>
+    </div>
 </body>
+
 </html>
+
+<?php include 'footer.php';?>

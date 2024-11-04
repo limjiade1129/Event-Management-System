@@ -2,6 +2,12 @@
 $title = "Create New Event";
 include 'config.php';
 
+// Redirect to login if not logged in
+if (!isset($_SESSION["login"])) {
+    header("Location: login.php");
+    exit();
+}
+
 // Initialize variables for form inputs
 $event_name = $event_type = $date = $start_time = $end_time = $location = $slots = $description = "";
 $image_err = "";

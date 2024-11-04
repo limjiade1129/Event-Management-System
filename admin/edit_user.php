@@ -7,6 +7,7 @@ $username = $_POST['username'];
 $email = $_POST['email'];
 $telno = $_POST['telno'];
 $role = $_POST['role'];
+$password = $_POST['password']; 
 
 // Check the database connection
 if ($conn->connect_error) {
@@ -30,10 +31,19 @@ if ($conn->connect_error) {
         <?php
         exit();
     } else {
-        // Email does not exist for another user, proceed with the update
-        $stmt = $conn->prepare("UPDATE user SET username = ?, email = ?, telno = ?, role = ? WHERE user_id = ?");
-        $stmt->bind_param("ssssi", $username, $email, $telno, $role, $user_id);
+        // Prepare the SQL statement based on whether a new password is provided
+        if (!empty($password)) {
+            // Hash the new password and update it along with other details
+            $hashed_password = md5($password);
+            $stmt = $conn->prepare("UPDATE user SET username = ?, email = ?, telno = ?, role = ?, password = ? WHERE user_id = ?");
+            $stmt->bind_param("sssssi", $username, $email, $telno, $role, $hashed_password, $user_id);
+        } else {
+            // Update other details without changing the password
+            $stmt = $conn->prepare("UPDATE user SET username = ?, email = ?, telno = ?, role = ? WHERE user_id = ?");
+            $stmt->bind_param("ssssi", $username, $email, $telno, $role, $user_id);
+        }
 
+        // Execute the update query
         if ($stmt->execute()) {
             // User updated successfully
             $stmt->close();
@@ -52,7 +62,7 @@ if ($conn->connect_error) {
             ?>
             <script>
                 alert("Error occurred while updating the user!");
-                window.location.href = "admin_manage_user.php"; // Redirect back to manage users page
+                window.location.href = "admin_manage_user.php"; 
             </script>
             <?php
             exit();

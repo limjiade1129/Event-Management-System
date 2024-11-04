@@ -13,7 +13,8 @@ $past_event_query = "SELECT COUNT(*) AS total FROM events WHERE date < CURDATE()
 $pending_event_query = "SELECT COUNT(*) AS total FROM events WHERE status = 'Pending'";
 $approved_event_query = "SELECT COUNT(*) AS total FROM events WHERE status = 'Approved'";
 $feedback_count_query = "SELECT COUNT(*) AS total FROM feedback";
-$contact_us_count_query = "SELECT COUNT(*) AS total FROM contact_us";
+$contact_total_query = "SELECT COUNT(*) AS total FROM contact_us";
+$contact_unread_query = "SELECT COUNT(*) AS unread FROM contact_us WHERE status = 'Unread'";
 
 $user_count = mysqli_fetch_assoc(mysqli_query($conn, $user_count_query))['total'];
 $organizer_count = mysqli_fetch_assoc(mysqli_query($conn, $organizer_count_query))['total'];
@@ -24,31 +25,51 @@ $past_event_count = mysqli_fetch_assoc(mysqli_query($conn, $past_event_query))['
 $pending_event_count = mysqli_fetch_assoc(mysqli_query($conn, $pending_event_query))['total'];
 $approved_event_count = mysqli_fetch_assoc(mysqli_query($conn, $approved_event_query))['total'];
 $feedback_count = mysqli_fetch_assoc(mysqli_query($conn, $feedback_count_query))['total'];
-$contact_us_count = mysqli_fetch_assoc(mysqli_query($conn, $contact_us_count_query))['total'];
+$contact_total = mysqli_fetch_assoc(mysqli_query($conn, $contact_total_query))['total'];
+$contact_unread = mysqli_fetch_assoc(mysqli_query($conn, $contact_unread_query))['unread'];
 
-// Fetch average rating
-$average_rating_query = "SELECT AVG(rating) AS average_rating FROM feedback";
-$average_rating = mysqli_fetch_assoc(mysqli_query($conn, $average_rating_query))['average_rating'];
-
-// Fetch feedback distribution
-$feedback_distribution_query = "SELECT rating, COUNT(*) AS total FROM feedback GROUP BY rating";
-$feedback_distribution_result = mysqli_query($conn, $feedback_distribution_query);
-$feedback_distribution = [];
-while ($row = mysqli_fetch_assoc($feedback_distribution_result)) {
-    $feedback_distribution[$row['rating']] = $row['total'];
+// Fetch total feedback by months
+$total_feedback_by_month_query = "
+    SELECT DATE_FORMAT(time_created, '%Y-%m') AS month, COUNT(*) AS total
+    FROM feedback
+    GROUP BY month
+    ORDER BY month ASC";
+$total_feedback_by_month_result = mysqli_query($conn, $total_feedback_by_month_query);
+$total_feedback_by_month = [];
+while ($row = mysqli_fetch_assoc($total_feedback_by_month_result)) {
+    $total_feedback_by_month[$row['month']] = $row['total'];
 }
 
-// Fetch most active events (by feedback count)
-$most_active_events_query = "SELECT e.event_name, COUNT(f.feedback_id) AS feedback_count 
-                             FROM events e 
-                             JOIN feedback f ON e.event_id = f.event_id 
-                             GROUP BY e.event_name 
-                             ORDER BY feedback_count DESC 
-                             LIMIT 5";
-$most_active_events_result = mysqli_query($conn, $most_active_events_query);
-$most_active_events = [];
-while ($row = mysqli_fetch_assoc($most_active_events_result)) {
-    $most_active_events[] = ['event_name' => $row['event_name'], 'feedback_count' => $row['feedback_count']];
+// Fetch number of users registered for events by months
+$users_registered_by_month_query = "
+    SELECT DATE_FORMAT(registration_date, '%Y-%m') AS month, COUNT(*) AS total
+    FROM event_registrations
+    GROUP BY month
+    ORDER BY month ASC";
+$users_registered_by_month_result = mysqli_query($conn, $users_registered_by_month_query);
+$users_registered_by_month = [];
+while ($row = mysqli_fetch_assoc($users_registered_by_month_result)) {
+    $users_registered_by_month[$row['month']] = $row['total'];
+}
+
+// Calculate engagement rate
+$engagement_rate = [];
+foreach ($total_feedback_by_month as $month => $feedback_count) {
+    $user_count = isset($users_registered_by_month[$month]) ? $users_registered_by_month[$month] : 0;
+    $rate = $user_count > 0 ? ($feedback_count / $user_count) * 100 : 0;
+    $engagement_rate[$month] = $rate;
+}
+
+// Fetch average rating by months
+$average_rating_by_month_query = "
+    SELECT DATE_FORMAT(time_created, '%Y-%m') AS month, AVG(rating) AS average_rating
+    FROM feedback
+    GROUP BY month
+    ORDER BY month ASC";
+$average_rating_by_month_result = mysqli_query($conn, $average_rating_by_month_query);
+$average_rating_by_month = [];
+while ($row = mysqli_fetch_assoc($average_rating_by_month_result)) {
+    $average_rating_by_month[$row['month']] = $row['average_rating'];
 }
 ?>
 
@@ -75,59 +96,68 @@ while ($row = mysqli_fetch_assoc($most_active_events_result)) {
             transition: margin-left 0.3s, width 0.3s;
         }
 
-        .sidebar.collapsed + .main-content {
-            margin-left: 60px;
-            width: calc(100% - 60px);
-        }
-
         .main-content h1 {
             font-size: 2.5em;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .stats-container {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
         }
 
         .stat-card {
             background-color: #fff;
-            padding: 30px;
+            padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             text-align: center;
             transition: transform 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
+            height: 180px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         .stat-card i {
-            font-size: 2.5em;
+            font-size: 2em;
             color: #007bff;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .stat-card h3 {
-            margin: 10px 0;
-            font-size: 1.4em;
+            margin: 8px 0;
+            font-size: 1.2em;
             color: #333;
         }
 
         .stat-card p {
-            font-size: 2em;
+            font-size: 1.8em;
             color: #007bff;
             margin: 0;
         }
 
         .stat-card .sub-details {
-            font-size: 0.9em;
+            font-size: 0.8em;
             color: #666;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
+        /* Chart Layout */
+        .chart-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .chart-left,
+        .chart-right{
+            height: 200px;  
+        }
+
+        
     </style>
 </head>
 <body>
@@ -137,7 +167,9 @@ while ($row = mysqli_fetch_assoc($most_active_events_result)) {
 <!-- Main Content -->
 <div class="main-content">
     <h1>Welcome, Admin</h1>
+    <!-- Statistics Card -->
     <div class="stats-container">
+        <!-- Total User Card -->
         <div class="stat-card">
             <i class="fas fa-users"></i>
             <h3>Total Users</h3>
@@ -148,6 +180,7 @@ while ($row = mysqli_fetch_assoc($most_active_events_result)) {
                 <span>Admin: <?php echo $admin_count; ?></span>
             </div>
         </div>
+        <!-- Event Card -->
         <div class="stat-card">
             <i class="fas fa-calendar-check"></i>
             <h3>Total Events</h3>
@@ -157,6 +190,7 @@ while ($row = mysqli_fetch_assoc($most_active_events_result)) {
                 <span>Past: <?php echo $past_event_count; ?></span>
             </div>
         </div>
+        <!-- Event Status Card -->
         <div class="stat-card">
             <i class="fas fa-tasks"></i>
             <h3>Event Status</h3>
@@ -165,120 +199,126 @@ while ($row = mysqli_fetch_assoc($most_active_events_result)) {
                 <span>Approved: <?php echo $approved_event_count; ?></span>
             </div>
         </div>
-        <div class="stat-card">
-            <i class="fas fa-comments"></i>
-            <h3>Total Feedback</h3>
-            <p><?php echo $feedback_count; ?></p>
-        </div>
-
-        <!-- Average Rating Card -->
-        <div class="stat-card">
-            <i class="fas fa-star"></i>
-            <h3>Average Rating</h3>
-            <p><?php echo number_format($average_rating, 1); ?> / 5</p>
-        </div>
-
         <!-- Contact Us Card -->
         <div class="stat-card">
             <i class="fas fa-envelope"></i>
-            <h3>Total Contact Us</h3>
-            <p><?php echo $contact_us_count; ?></p>
+            <h3>Contact Us</h3>
+            <p><?php echo $contact_total; ?></p>
+            <div class="sub-details">
+                <span>Unread: <?php echo $contact_unread; ?></span>
+            </div>
         </div>
-        <!-- Feedback Distribution Chart -->
-        <div class="stat-card">
-            <canvas id="feedbackDistributionChart"></canvas>
-        </div>
-        <!-- Most Active Events Chart -->
-        <div class="stat-card">
-            <canvas id="mostActiveEventsChart"></canvas>
-        </div>
+    </div>
 
+    <!-- Chart Section -->
+    <div class="chart-container">
+        <!-- User registered Chart -->
+        <div class="stat-card chart-left">
+            <canvas id="usersRegisteredChart"></canvas>
+        </div>
+        <!-- Total Feedback Chart -->
+        <div class="stat-card chart-right">
+            <canvas id="totalFeedbackChart"></canvas>
+        </div>
+        <!-- Engagement Rate Chart -->
+        <div class="stat-card chart-left">
+            <canvas id="engagementRateChart"></canvas>
+        </div>
+        <!-- Average Rating Chart -->
+        <div class="stat-card chart-right">
+            <canvas id="averageRatingChart"></canvas>
+        </div>
     </div>
 </div>
 
 <script>
-    const allRatings = [1, 2, 3, 4, 5];
-    const feedbackDistribution = <?php echo json_encode($feedback_distribution); ?>;
-
-    const feedbackData = allRatings.map(rating => feedbackDistribution[rating] || 0);
-
-    // Feedback Distribution Data
-    const feedbackDistributionData = {
-        labels: allRatings.map(rating => `${rating}`), // Display as "Rating 1", "Rating 2", etc.
+    // Graph 1: Users Registered for Events by Month
+    const usersRegisteredData = {
+        labels: <?php echo json_encode(array_keys($users_registered_by_month)); ?>,
         datasets: [{
-            label: 'Number of Feedbacks',
-            data: feedbackData,
-            backgroundColor: ['#3498db'],
+            label: 'Users Registered',
+            data: <?php echo json_encode(array_values($users_registered_by_month)); ?>,
+            backgroundColor: '#2ecc71'
         }]
     };
-
-    // Render Feedback Distribution Chart
-    const feedbackCtx = document.getElementById('feedbackDistributionChart').getContext('2d');
-    new Chart(feedbackCtx, {
+    const usersRegisteredCtx = document.getElementById('usersRegisteredChart').getContext('2d');
+    new Chart(usersRegisteredCtx, {
         type: 'bar',
-        data: feedbackDistributionData,
+        data: usersRegisteredData,
         options: {
             responsive: true,
-            plugins: {
-                legend: { display: true, position: 'top' },
-            },
             scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Ratings'
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Number of Feedbacks'
-                    },
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1 
-                    }
-                }
+                x: { title: { display: true, text: 'Month' } },
+                y: { title: { display: true, text: 'Users Registered' }, beginAtZero: true }
             }
         }
     });
 
-     // Most Active Events Data
-     const mostActiveEventsData = {
-        labels: <?php echo json_encode(array_column($most_active_events, 'event_name')); ?>,
+    // Graph 2: Total Feedback by Month
+    const totalFeedbackData = {
+        labels: <?php echo json_encode(array_keys($total_feedback_by_month)); ?>,
         datasets: [{
-            label: 'Feedback Count',
-            data: <?php echo json_encode(array_column($most_active_events, 'feedback_count')); ?>,
-            backgroundColor: '#3498db',
+            label: 'Total Feedback',
+            data: <?php echo json_encode(array_values($total_feedback_by_month)); ?>,
+            backgroundColor: '#3498db'
         }]
     };
-    // Render Most Active Events Chart
-    const eventsCtx = document.getElementById('mostActiveEventsChart').getContext('2d');
-    new Chart(eventsCtx, {
+    const totalFeedbackCtx = document.getElementById('totalFeedbackChart').getContext('2d');
+    new Chart(totalFeedbackCtx, {
         type: 'bar',
-        data: mostActiveEventsData,
+        data: totalFeedbackData,
         options: {
             responsive: true,
-            plugins: {
-                legend: { display: true, position: 'top' },
-            },
             scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Event Name'
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Number of Feedback'
-                    },
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1 
-                    }
-                }
+                x: { title: { display: true, text: 'Month' } },
+                y: { title: { display: true, text: 'Total Feedback' }, beginAtZero: true }
+            }
+        }
+    });
+
+    // Graph 3: Engagement Rate by Month
+    const engagementRateData = {
+        labels: <?php echo json_encode(array_keys($engagement_rate)); ?>,
+        datasets: [{
+            label: 'Engagement Rate (%)',
+            data: <?php echo json_encode(array_values($engagement_rate)); ?>,
+            borderColor: '#e74c3c',
+            fill: false
+        }]
+    };
+    const engagementRateCtx = document.getElementById('engagementRateChart').getContext('2d');
+    new Chart(engagementRateCtx, {
+        type: 'line',
+        data: engagementRateData,
+        options: {
+            responsive: true,
+            scales: {
+                x: { title: { display: true, text: 'Month' } },
+                y: { title: { display: true, text: 'Engagement Rate (%)' }, beginAtZero: true }
+            }
+        }
+    });
+
+    // Graph 4: Average Rating by Month
+    const averageRatingData = {
+        labels: <?php echo json_encode(array_keys($average_rating_by_month)); ?>,
+        datasets: [{
+            label: 'Average Rating',
+            data: <?php echo json_encode(array_values($average_rating_by_month)); ?>,
+            borderColor: '#f39c12',
+            backgroundColor: '#f39c12',
+            fill: false
+        }]
+    };
+    const averageRatingCtx = document.getElementById('averageRatingChart').getContext('2d');
+    new Chart(averageRatingCtx, {
+        type: 'line',
+        data: averageRatingData,
+        options: {
+            responsive: true,
+            scales: {
+                x: { title: { display: true, text: 'Month' } },
+                y: { title: { display: true, text: 'Average Rating' }, beginAtZero: true, max: 5 }
             }
         }
     });

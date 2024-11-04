@@ -25,16 +25,25 @@ $result = $stmt->get_result();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event History</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
+        body ,html{
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f2f5;
             color: #333;
+
         }
 
         .container {
+            flex: 1; 
             max-width: 1200px;
             margin: 0 auto;
+            padding: 20px;
         }
 
         h1 {
@@ -71,8 +80,8 @@ $result = $stmt->get_result();
         }
 
         .action-button {
-            background-color: #3498db;
-            color: white;
+            background-color: #3498db !important;
+            color: white !important;
             padding: 10px 11px;
             border-radius: 15px;
             font-size: 0.9em;
@@ -84,36 +93,37 @@ $result = $stmt->get_result();
         }
 
         .action-button:hover {
-            background-color: #2980b9;
+            background-color: #2980b9 !important;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
         .feedback-button {
-            background-color: #e67e22;
-            color: white;
+            background-color: #e67e22 !important;
+            color: white !important;
         }
 
         .feedback-button:hover {
-            background-color: #d35400;
+            background-color: #d35400 !important;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
         }
 
         .delete-button {
-            background-color: #e74c3c;
+            background-color: #e74c3c !important;
+            color: white !important;
         }
 
         .delete-button:hover {
-            background-color: #c0392b;
+            background-color: #c0392b !important;
         }
 
         .feedback-disabled {
-            background-color: #bdc3c7;
+            background-color: #bdc3c7 !important;
             cursor: not-allowed;
             box-shadow: none;
         }
 
         .feedback-disabled:hover {
-            background-color: #bdc3c7;
+            background-color: #bdc3c7 !important;
         }
 
         .action-buttons {
@@ -206,6 +216,7 @@ $result = $stmt->get_result();
 </html>
 
 <?php
+include 'footer.php';
 $stmt->close();
 $conn->close();
 ?>

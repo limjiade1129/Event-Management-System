@@ -11,7 +11,7 @@ $query = "SELECT e.*, er.registration_date,
           FROM events e
           JOIN event_registrations er ON e.event_id = er.event_id
           WHERE er.user_id = ? 
-          ORDER BY er.registration_date ASC";
+          ORDER BY er.registration_date DESC";
 $stmt = $conn->prepare($query);
 $stmt->bind_param("ii", $user_id, $user_id);
 $stmt->execute();
@@ -200,7 +200,9 @@ $result = $stmt->get_result();
 
                                     <?php if ($event_date >= $today): ?>
                                         <!-- Delete button for future events -->
-                                        <a href="delete_registration.php?id=<?php echo $event['event_id']; ?>" class="action-button delete-button">Delete</a>
+                                        <a href="delete_registration.php?id=<?php echo $event['event_id']; ?>" 
+                                        class="action-button delete-button"
+                                        onclick="return confirmDelete()">Delete</a>
                                     <?php endif; ?>
                                 </div>
                             </td>
@@ -212,6 +214,13 @@ $result = $stmt->get_result();
             <p class="no-events-message">You have not registered for any events yet.</p>
         <?php endif; ?>
     </div>
+
+<script>
+    function confirmDelete() {
+        return confirm("Are you sure you want to delete this registration?");
+    }
+</script>
+
 </body>
 </html>
 

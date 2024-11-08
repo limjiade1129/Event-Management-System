@@ -77,34 +77,44 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
         .user-icon {
             cursor: pointer;
-            font-size: 20px;
+            font-size: 24px;
             color: #333;
+            transition: color 0.3s;
+        }
+
+        .user-icon:hover {
+            color: #007bff;
         }
 
         .dropdown-content {
             display: none;
             position: absolute;
             right: 0;
-            background-color: #f1f1f1;
-            min-width: 170px;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-            border-radius: 4px;
+            background-color: #ffffff;
+            min-width: 180px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            overflow: hidden;
             z-index: 1000;
             opacity: 0;
-            transform: translateY(-10px);
+            transform: translateY(10px);
             transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
         .dropdown-content a {
             color: #333;
-            padding: 10px 15px;
+            padding: 12px 16px;
             text-decoration: none;
-            display: block;
-            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         .dropdown-content a:hover {
-            background-color: #ddd;
+            background-color: #007bff;
+            color: #ffffff;
         }
 
         .dropdown-content.show {
@@ -112,6 +122,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             opacity: 1;
             transform: translateY(0);
         }
+
 
     </style>
 </head>
@@ -139,7 +150,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <i class="fas fa-user-circle user-icon" onclick="toggleDropdown()"></i>
             <div class="dropdown-content" id="userDropdown">
                 <a href="profile.php"><i class="fas fa-user"></i> My Profile</a>
-                <a href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                <a href="logout.php" onclick="return confirmLogout()"><i class="fas fa-sign-out-alt"></i> Logout</a>
             </div>
         </div>
     </div>
@@ -149,6 +160,11 @@ $current_page = basename($_SERVER['PHP_SELF']);
             var dropdown = document.getElementById("userDropdown");
             dropdown.classList.toggle("show");
         }
+
+        function confirmLogout() {
+        return confirm("Are you sure you want to log out?");
+        }
+
 
         window.onclick = function(event) {
             if (!event.target.matches('.user-icon')) {

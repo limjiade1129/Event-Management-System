@@ -129,7 +129,7 @@
 
             // Regular expressions for validation
 
-            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email format
+            var emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
             var passwordRegex = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/; // At least one uppercase, one lowercase, one number, one special char, and 8 characters
             var phoneRegex = /^0[0-9]{9}$/; 
 

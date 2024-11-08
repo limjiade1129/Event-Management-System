@@ -24,7 +24,7 @@ if ($conn->connect_error) {
         $conn->close();
         ?>
         <script>
-            alert("Email already exists.Try to sign up with another email!");
+            alert("Email already exists. Try to sign up with another email!");
             window.location.href = "register.php"; // Redirect to the register page
         </script>
         <?php

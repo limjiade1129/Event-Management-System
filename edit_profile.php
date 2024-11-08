@@ -18,11 +18,12 @@ $user_data = mysqli_fetch_assoc($result);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle form submission
     $username = $_POST['username'];
+    $email = $_POST['email'];
     $telno = $_POST['telno'];
     $role = $_POST['role'];
 
     // Update user information in the database
-    $update_query = "UPDATE user SET username='$username', telno='$telno', role='$role' WHERE user_id='$user_id'";
+    $update_query = "UPDATE user SET username='$username', email='$email', telno='$telno', role='$role' WHERE user_id='$user_id'";
 
     if (mysqli_query($conn, $update_query)) {
         $_SESSION['role'] = $role;
@@ -132,7 +133,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <div class="profile-container">
         <h2>Edit Profile</h2>
-        <form action="edit_profile.php" method="POST">
+        <form action="edit_profile.php" method="POST" onsubmit="return validateEditForm()" autocomplete="off">
             <div class="form-row">
                 <label for="username">Username:</label>
                 <input type="text" name="username" id="username" value="<?php echo $user_data['username']; ?>" required>
@@ -140,7 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <div class="form-row">
                 <label for="email">Email:</label>
-                <input type="email" name="email" id="email" value="<?php echo $user_data['email']; ?>" readonly>
+                <input type="email" name="email" id="email" value="<?php echo $user_data['email']; ?>" required>
             </div>
 
             <div class="form-row">
@@ -167,5 +168,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </form>
     </div>
+
+    <script>
+        function validateEditForm() {
+            var email = document.getElementById("email").value;
+            var telno = document.getElementById("telno").value;
+
+            // Regular expressions for validation
+            var emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            var phoneRegex = /^0[0-9]{9}$/; 
+
+            // Validate Email
+            if (!emailRegex.test(email)) {
+                alert("Please enter a valid email address.");
+                return false;
+            }
+
+            // Validate Phone Number
+            if (!phoneRegex.test(telno)) {
+                alert("Please enter a valid phone number (e.g., 0161234567).");
+                return false;
+            }
+
+            return true; // Passes validation
+        }
+    </script>
 </body>
 </html>

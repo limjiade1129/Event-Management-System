@@ -139,7 +139,7 @@ $feedback_preview_length = 100;
                 <th>Feedback ID</th>
                 <th>Event ID</th>
                 <th>Event Name</th>
-                <th>User</th>
+                <th>Username</th>
                 <th>Feedback</th>
                 <th>Rating</th>
                 <th>Time Created</th>

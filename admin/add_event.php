@@ -45,7 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 if ($stmt->execute()) {
                     echo "<script>alert('Event created successfully!'); window.location.href='admin_manage_event.php';</script>";
                 } else {
-                    echo "<script>alert('Error creating event.');</script>";
+                    echo "<script>alert('Error creating event.'); window.location.href='admin_manage_event.php';</script>";
                 }
                 $stmt->close();
             } else {

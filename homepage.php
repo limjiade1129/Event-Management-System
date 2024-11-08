@@ -2,9 +2,9 @@
 $title = "Homepage"; 
 include 'header.php'; 
 
-// Fetch the total number of events and upcoming events from the database
-$event_count_query = "SELECT COUNT(*) AS total FROM events";
-$upcoming_event_count_query = "SELECT COUNT(*) AS total FROM events WHERE date >= CURDATE() AND status != 'Pending'";
+// Fetch the total number of events that approved and upcoming events from the database
+$event_count_query = "SELECT COUNT(*) AS total FROM events WHERE status = 'Approved'";
+$upcoming_event_count_query = "SELECT COUNT(*) AS total FROM events WHERE date >= CURDATE() AND status = 'Approved'";
 
 $event_count = mysqli_fetch_assoc(mysqli_query($conn, $event_count_query))['total'];
 $upcoming_event_count = mysqli_fetch_assoc(mysqli_query($conn, $upcoming_event_count_query))['total'];

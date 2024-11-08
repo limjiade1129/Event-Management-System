@@ -28,6 +28,11 @@ $email = $user['email'];
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body,html{
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f2f5;
             color: #333;
@@ -175,10 +180,9 @@ $email = $user['email'];
         }
 
         .map-container {
-            max-width: 1000px;
+            width: 60%;
             margin: 40px auto;
             border-radius: 12px;
-            overflow: hidden;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 

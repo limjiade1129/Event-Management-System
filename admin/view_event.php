@@ -6,17 +6,6 @@ include '../config.php';
 $event_id = $_GET['id'];
 $organizer_id = $_SESSION['user_id']; 
 
-// Set the number of results per page
-$results_per_page = 10;
-
-// Get the current page number for registrations
-$registration_page = isset($_GET['registration_page']) ? (int)$_GET['registration_page'] : 1;
-$feedback_page = isset($_GET['feedback_page']) ? (int)$_GET['feedback_page'] : 1;
-
-// Calculate the starting point for the database query
-$registration_start = ($registration_page - 1) * $results_per_page;
-$feedback_start = ($feedback_page - 1) * $results_per_page;
-
 // Fetch event details including organizer information
 $query = "SELECT e.*, u.username AS organizer_name, u.email AS organizer_email 
           FROM events e
@@ -29,13 +18,11 @@ $event = mysqli_fetch_assoc($result);
 $registration_count_query = "SELECT COUNT(*) AS total FROM event_registrations WHERE event_id = $event_id";
 $registration_count_result = mysqli_query($conn, $registration_count_query);
 $registration_total_rows = mysqli_fetch_assoc($registration_count_result)['total'];
-$registration_total_pages = ceil($registration_total_rows / $results_per_page);
 
 // Fetch total number of feedbacks
 $feedback_count_query = "SELECT COUNT(*) AS total FROM feedback WHERE event_id = $event_id";
 $feedback_count_result = mysqli_query($conn, $feedback_count_query);
 $feedback_total_rows = mysqli_fetch_assoc($feedback_count_result)['total'];
-$feedback_total_pages = ceil($feedback_total_rows / $results_per_page);
 
 $feedback_query = "SELECT rating FROM feedback WHERE event_id = $event_id";
 $feedback_result = mysqli_query($conn, $feedback_query);
@@ -54,22 +41,18 @@ while ($feedback = mysqli_fetch_assoc($feedback_result)) {
 
 $average_rating = $total_feedbacks > 0 ? $total_rating / $total_feedbacks : 0;
 
-// Fetch paginated registrations
+// Fetch all registrations
 $registrations_query = "SELECT event_registrations.registration_id, event_registrations.user_id, user.username, user.email, event_registrations.registration_date 
                         FROM event_registrations 
                         LEFT JOIN user ON event_registrations.user_id = user.user_id 
-                        WHERE event_registrations.event_id = $event_id
-                        LIMIT $registration_start, $results_per_page";
-
+                        WHERE event_registrations.event_id = $event_id";
 $registrations_result = mysqli_query($conn, $registrations_query);
 
-// Fetch paginated feedback
-$feedback_query = "SELECT  feedback.feedback_id, feedback.user_id, user.username, user.email, feedback.feedback, feedback.rating, feedback.time_created 
+// Fetch all feedback
+$feedback_query = "SELECT feedback.feedback_id, feedback.user_id, user.username, user.email, feedback.feedback, feedback.rating, feedback.time_created 
                    FROM feedback 
                    LEFT JOIN user ON feedback.user_id = user.user_id 
-                   WHERE feedback.event_id = $event_id
-                   LIMIT $feedback_start, $results_per_page";
-
+                   WHERE feedback.event_id = $event_id";
 $feedback_result = mysqli_query($conn, $feedback_query);
 
 // Set feedback preview length
@@ -281,29 +264,6 @@ $feedback_preview_length = 100;
             background-color: #ddd;
         }
 
-        .pagination {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .pagination a {
-            display: inline-block;
-            padding: 8px 16px;
-            margin: 4px;
-            background-color: #3498db;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-
-        .pagination a.active {
-            background-color: #2ecc71;
-        }
-
-        .pagination a:hover {
-            background-color: #2980b9;
-        }
-
         .full-feedback {
             display: none;
         }
@@ -323,14 +283,39 @@ $feedback_preview_length = 100;
             margin-top: 30px;
             display: flex;
             justify-content: space-around;
+            gap: 20px;
         }
+
         .chart-card {
             background-color: #fff;
             border-radius: 12px;
             padding: 20px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            width: 45%;
+            width: 30%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
         }
+
+        .average-rating-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .average-rating-card h3 {
+            font-size: 1.4em;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .average-rating-card p {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #3498db;
+        }
+
     </style>
 </head>
 <body>
@@ -402,6 +387,10 @@ $feedback_preview_length = 100;
             <div class="chart-card">
                 <canvas id="feedbackRatingChart"></canvas>
             </div>
+            <div class="chart-card average-rating-card">
+                <h3>Average Rating</h3>
+                <p><?php echo number_format($average_rating, 1); ?> / 5</p>
+            </div>
         </div>
 
         <!-- Registered Users Section -->
@@ -418,7 +407,7 @@ $feedback_preview_length = 100;
                     <th>Registration Date</th>
                     <th>Actions</th>
                 </tr>
-                <?php $num = $registration_start + 1; ?>
+                <?php $num = 1; ?>
                 <?php while ($registration = mysqli_fetch_assoc($registrations_result)): ?>
                 <tr>
                     <td><?php echo $num++; ?></td>
@@ -436,16 +425,6 @@ $feedback_preview_length = 100;
                 </tr>
                 <?php endwhile; ?>
             </table>
-
-            <!-- Pagination for Registered Users -->
-            <div class="pagination">
-                <?php for ($i = 1; $i <= $registration_total_pages; $i++): ?>
-                    <a href="?id=<?php echo $event_id; ?>&registration_page=<?php echo $i; ?>&feedback_page=<?php echo $feedback_page; ?>#registrations" 
-                       class="<?php echo ($i == $registration_page) ? 'active' : ''; ?>">
-                        <?php echo $i; ?>
-                    </a>
-                <?php endfor; ?>
-            </div>
 
             <?php else: ?>
             <p>No users have registered for this event yet.</p>
@@ -468,7 +447,7 @@ $feedback_preview_length = 100;
                     <th>Time Created</th>
                     <th>Actions</th>
                 </tr>
-                <?php $num = $feedback_start + 1; ?>
+                <?php $num = 1; ?>
                 <?php while ($feedback = mysqli_fetch_assoc($feedback_result)): ?>
                 <tr>
                     <td><?php echo $num++; ?></td>
@@ -501,16 +480,6 @@ $feedback_preview_length = 100;
                 <?php endwhile; ?>
             </table>
 
-            <!-- Pagination for Feedback -->
-            <div class="pagination">
-                <?php for ($i = 1; $i <= $feedback_total_pages; $i++): ?>
-                    <a href="?id=<?php echo $event_id; ?>&feedback_page=<?php echo $i; ?>&registration_page=<?php echo $registration_page; ?>#feedback" 
-                       class="<?php echo ($i == $feedback_page) ? 'active' : ''; ?>">
-                        <?php echo $i; ?>
-                    </a>
-                <?php endfor; ?>
-            </div>
-
             <?php else: ?>
             <p>No feedback has been given for this event yet.</p>
             <?php endif; ?>
@@ -537,7 +506,8 @@ $feedback_preview_length = 100;
             options: {
                 responsive: true,
                 plugins: {
-                    legend: { display: true, position: 'top' }
+                    legend: { display: true, position: 'top' },
+                    title: { display: true, text: 'Event Engagement Metrics' }
                 },
                 scales: { y: { beginAtZero: true, stepSize: 1 } }
             }
@@ -548,7 +518,7 @@ $feedback_preview_length = 100;
         var feedbackRatingChart = new Chart(ctx2, {
             type: 'pie',
             data: {
-                labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+                labels: ['Rating 1', 'Rating 2', 'Rating 3', 'Rating 4', 'Rating 5'],
                 datasets: [{
                     data: [<?php echo implode(",", $feedback_counts); ?>],
                     backgroundColor: ['#e74c3c', '#f39c12', '#f1c40f', '#2ecc71', '#3498db'],
@@ -558,7 +528,8 @@ $feedback_preview_length = 100;
             options: {
                 responsive: true,
                 plugins: {
-                    legend: { display: true, position: 'top' }
+                    legend: { display: true, position: 'top' },
+                    title: { display: true, text: 'Feedback Rating Distribution' }
                 }
             }
         });

@@ -4,56 +4,59 @@ include 'header.php';
 
 // Assuming event_id is passed via URL
 $event_id = $_GET['id'];
-$organizer_id = $_SESSION['user_id']; 
+$organizer_id = $_SESSION['user_id'];
 
-// Set the number of results per page
-$results_per_page = 10;
+// Fetch total number of registrations
+$registration_count_query = "SELECT COUNT(*) AS total FROM event_registrations WHERE event_id = ?";
+$stmt = $conn->prepare($registration_count_query);
+$stmt->bind_param("i", $event_id);
+$stmt->execute();
+$registration_count_result = $stmt->get_result();
+$registration_total_rows = $registration_count_result->fetch_assoc()['total'];
+$stmt->close();
 
-// Get the current page number for registrations
-$registration_page = isset($_GET['registration_page']) ? (int)$_GET['registration_page'] : 1;
-$feedback_page = isset($_GET['feedback_page']) ? (int)$_GET['feedback_page'] : 1;
-
-// Calculate the starting point for the database query
-$registration_start = ($registration_page - 1) * $results_per_page;
-$feedback_start = ($feedback_page - 1) * $results_per_page;
+// Fetch total number of feedbacks
+$feedback_count_query = "SELECT COUNT(*) AS total FROM feedback WHERE event_id = ?";
+$stmt = $conn->prepare($feedback_count_query);
+$stmt->bind_param("i", $event_id);
+$stmt->execute();
+$feedback_count_result = $stmt->get_result();
+$feedback_total_rows = $feedback_count_result->fetch_assoc()['total'];
+$stmt->close();
 
 // Fetch event details including organizer information
 $query = "SELECT e.*, u.username AS organizer_name, u.email AS organizer_email 
           FROM events e
           JOIN user u ON e.created_by = u.user_id
-          WHERE e.event_id = $event_id AND e.created_by = $organizer_id";
-$result = mysqli_query($conn, $query);
-$event = mysqli_fetch_assoc($result);
+          WHERE e.event_id = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $event_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$event = $result->fetch_assoc();
+$stmt->close();
 
-// Fetch total number of registrations
-$registration_count_query = "SELECT COUNT(*) AS total FROM event_registrations WHERE event_id = $event_id";
-$registration_count_result = mysqli_query($conn, $registration_count_query);
-$registration_total_rows = mysqli_fetch_assoc($registration_count_result)['total'];
-$registration_total_pages = ceil($registration_total_rows / $results_per_page);
-
-// Fetch total number of feedbacks
-$feedback_count_query = "SELECT COUNT(*) AS total FROM feedback WHERE event_id = $event_id";
-$feedback_count_result = mysqli_query($conn, $feedback_count_query);
-$feedback_total_rows = mysqli_fetch_assoc($feedback_count_result)['total'];
-$feedback_total_pages = ceil($feedback_total_rows / $results_per_page);
-
-// Fetch paginated registrations
+// Fetch all registrations
 $registrations_query = "SELECT event_registrations.registration_id, event_registrations.user_id, user.username, user.email, event_registrations.registration_date 
                         FROM event_registrations 
                         LEFT JOIN user ON event_registrations.user_id = user.user_id 
-                        WHERE event_registrations.event_id = $event_id
-                        LIMIT $registration_start, $results_per_page";
+                        WHERE event_registrations.event_id = ?";
+$stmt = $conn->prepare($registrations_query);
+$stmt->bind_param("i", $event_id);
+$stmt->execute();
+$registrations_result = $stmt->get_result();
+$stmt->close();
 
-$registrations_result = mysqli_query($conn, $registrations_query);
-
-// Fetch paginated feedback
-$feedback_query = "SELECT  feedback.feedback_id, feedback.user_id, user.username, user.email, feedback.feedback, feedback.rating, feedback.time_created 
+// Fetch all feedback
+$feedback_query = "SELECT feedback.feedback_id, feedback.user_id, user.username, user.email, feedback.feedback, feedback.rating, feedback.time_created 
                    FROM feedback 
                    LEFT JOIN user ON feedback.user_id = user.user_id 
-                   WHERE feedback.event_id = $event_id
-                   LIMIT $feedback_start, $results_per_page";
-
-$feedback_result = mysqli_query($conn, $feedback_query);
+                   WHERE feedback.event_id = ?";
+$stmt = $conn->prepare($feedback_query);
+$stmt->bind_param("i", $event_id);
+$stmt->execute();
+$feedback_result = $stmt->get_result();
+$stmt->close();
 
 // Set feedback preview length
 $feedback_preview_length = 100;
@@ -263,29 +266,6 @@ $feedback_preview_length = 100;
             background-color: #ddd;
         }
 
-        .pagination {
-            margin-top: 20px;
-            text-align: center;
-        }
-
-        .pagination a {
-            display: inline-block;
-            padding: 8px 16px;
-            margin: 4px;
-            background-color: #3498db;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-
-        .pagination a.active {
-            background-color: #2ecc71;
-        }
-
-        .pagination a:hover {
-            background-color: #2980b9;
-        }
-
         .full-feedback {
             display: none;
         }
@@ -378,7 +358,7 @@ $feedback_preview_length = 100;
                     <th>Registration Date</th>
                     <th>Actions</th>
                 </tr>
-                <?php $num = $registration_start + 1; ?>
+                <?php $num = 1; ?>
                 <?php while ($registration = mysqli_fetch_assoc($registrations_result)): ?>
                 <tr>
                     <td><?php echo $num++; ?></td>
@@ -397,15 +377,6 @@ $feedback_preview_length = 100;
                 <?php endwhile; ?>
             </table>
 
-            <!-- Pagination for Registered Users -->
-            <div class="pagination">
-                <?php for ($i = 1; $i <= $registration_total_pages; $i++): ?>
-                    <a href="?id=<?php echo $event_id; ?>&registration_page=<?php echo $i; ?>&feedback_page=<?php echo $feedback_page; ?>#registrations" 
-                       class="<?php echo ($i == $registration_page) ? 'active' : ''; ?>">
-                        <?php echo $i; ?>
-                    </a>
-                <?php endfor; ?>
-            </div>
 
             <?php else: ?>
             <p>No users have registered for this event yet.</p>
@@ -428,7 +399,7 @@ $feedback_preview_length = 100;
                     <th>Time Created</th>
                     <th>Actions</th>
                 </tr>
-                <?php $num = $feedback_start + 1; ?>
+                <?php $num = 1; ?>
                 <?php while ($feedback = mysqli_fetch_assoc($feedback_result)): ?>
                 <tr>
                     <td><?php echo $num++; ?></td>
@@ -460,16 +431,6 @@ $feedback_preview_length = 100;
                 </tr>
                 <?php endwhile; ?>
             </table>
-
-            <!-- Pagination for Feedback -->
-            <div class="pagination">
-                <?php for ($i = 1; $i <= $feedback_total_pages; $i++): ?>
-                    <a href="?id=<?php echo $event_id; ?>&feedback_page=<?php echo $i; ?>&registration_page=<?php echo $registration_page; ?>#feedback" 
-                       class="<?php echo ($i == $feedback_page) ? 'active' : ''; ?>">
-                        <?php echo $i; ?>
-                    </a>
-                <?php endfor; ?>
-            </div>
 
             <?php else: ?>
             <p>No feedback has been given for this event yet.</p>

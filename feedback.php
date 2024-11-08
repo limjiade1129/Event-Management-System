@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($stmt->execute()) {
         echo "<script>alert('Thank you for your feedback!'); window.location.href='event_history.php';</script>";
     } else {
-        echo "<script>alert('Error saving feedback.');</script>";
+        echo "<script>alert('Error saving feedback.'); window.location.href='feedback.php';</script>";
     }
     $stmt->close();
 }

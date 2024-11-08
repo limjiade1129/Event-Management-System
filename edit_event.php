@@ -77,7 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if ($stmt->execute()) {
         echo "<script>alert('Event updated successfully!'); window.location.href='my_event.php';</script>";
     } else {
-        echo "<script>alert('Error updating event.');</script>";
+        echo "<script>alert('Error updating event.'); window.location.href='edit_event.php';</script>";
     }
     $stmt->close();
 }
@@ -230,9 +230,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Get form fields
         const startTimeField = document.getElementById('start_time').value;
         const endTimeField = document.getElementById('end_time').value;
-
-        // Get current date in the format YYYY-MM-DD
-        const today = new Date().toISOString().split('T')[0];
 
         // Check if the start time is after the end time
         if (startTimeField >= endTimeField) {

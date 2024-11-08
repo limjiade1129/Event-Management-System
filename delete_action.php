@@ -38,7 +38,7 @@ if ($action == 'delete_registration') {
     $stmt->close();
 
 } else {
-    echo "<script>alert('Invalid action.'); window.location.href='my_event.php';</script>";
+    echo "<script>alert('Invalid action.'); window.history.back();</script>";
 }
 
 $conn->close();

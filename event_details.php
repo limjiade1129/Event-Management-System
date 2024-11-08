@@ -33,9 +33,9 @@ if (isset($_GET['register']) && !$is_registered && $event['slots'] > 0) {
         mysqli_query($conn, $update_slots_query);
 
         // Redirect and alert success
-        echo "<script>alert('Successfully registered for the event!'); window.location.href = 'eventlist.php';</script>";
+        echo "<script>alert('Successfully registered for the event !'); window.location.href = 'eventlist.php';</script>";
     } else {
-        echo "<script>alert('Error registering for the event. Please try again.');</script>";
+        echo "<script>alert('Error registering for the event. Please try again.'); window.location.href = 'eventlist.php';</script>";
     }
 }
 ?>
@@ -47,20 +47,24 @@ if (isset($_GET['register']) && !$is_registered && $event['slots'] > 0) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event Details</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8f9fa;
-            color: #333;
+        body,html {
             margin: 0;
             padding: 0;
-            line-height: 1.6;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
         }
 
         .container {
+            flex: 1; 
             max-width: 1200px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 20px;
         }
 
         .event-header {
@@ -172,25 +176,25 @@ if (isset($_GET['register']) && !$is_registered && $event['slots'] > 0) {
         }
 
         .back-button {
-            background-color: #3498db;
-            color: white;
+            background-color: #3498db !important;
+            color: white !important;
         }
 
         .back-button:hover {
-            background-color: #2980b9;
+            background-color: #2980b9 !important;
         }
 
         .register-button {
-            background-color: #e74c3c;
-            color: white;
+            background-color: #e74c3c !important;
+            color: white !important;
         }
 
         .register-button:hover {
-            background-color: #c0392b;
+            background-color: #c0392b !important;
         }
 
         .disabled-button {
-            background-color: #95a5a6;
+            background-color: #95a5a6 !important;
             color: white;
             cursor: not-allowed;
         }
@@ -299,5 +303,6 @@ if (isset($_GET['register']) && !$is_registered && $event['slots'] > 0) {
 </script>
 
 <?php
+include "footer.php";
 mysqli_close($conn);
 ?>

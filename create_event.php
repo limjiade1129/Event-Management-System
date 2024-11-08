@@ -48,9 +48,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt->bind_param("ssssssisss", $event_name, $event_type, $date, $start_time, $end_time, $location, $slots, $description, $image, $created_by);
 
                 if ($stmt->execute()) {
-                    echo "<script>alert('Event created successfully!'); window.location.href='my_event.php';</script>";
+                    echo "<script>alert('Event created successfully! Your event is awaiting admin approval.'); window.location.href='my_event.php';</script>";
                 } else {
-                    echo "<script>alert('Error creating event.');</script>";
+                    echo "<script>alert('Error creating event. Please try again.'); window.location.href='my_event.php';</script>";
                 }
                 $stmt->close();
             } else {

@@ -16,7 +16,7 @@ if (isset($_POST['contactus_id']) && isset($_POST['status'])) {
     } else {
         echo json_encode(['success' => false, 'message' => 'Failed to update status']);
     }
-    exit; // Terminate the script after handling AJAX
+    exit;
 }
 
 // Get the filter parameters from the URL if set
@@ -232,11 +232,15 @@ $has_contact_us = $contact_us_result->num_rows > 0;
                 if (result.success) {
                     link.textContent = newStatus === 'Read' ? 'Mark as Unread' : 'Mark as Read';
                     link.closest('tr').querySelector('td:nth-child(8)').textContent = newStatus;
+
+                    alert("Status updated successfully!");
+
                     // Refresh the table if the filter is set to "Unread" or "Read"
                     var selectedStatus = document.getElementById('statusSelect').value;
                     if (selectedStatus === 'Unread' || selectedStatus === 'Read') {
                         location.reload();
                     }
+
                 } else {
                     alert('Failed to update status: ' + result.message);
                 }

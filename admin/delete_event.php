@@ -55,7 +55,5 @@ if (isset($_GET['id'])) {
 
     $delete_event_stmt->close();
     $conn->close();
-} else {
-    header('Location: admin_manage_event.php');
 }
 ?>

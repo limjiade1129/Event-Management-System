@@ -6,9 +6,12 @@ include 'header.php';
 $user_id = $_SESSION['user_id'];
 
 // Fetch updated user data from the database
-$query = "SELECT * FROM user WHERE user_id = '$user_id'";
-$result = mysqli_query($conn, $query);
-$user_data = mysqli_fetch_assoc($result);
+$query = "SELECT * FROM user WHERE user_id = ?";
+$stmt = $conn->prepare($query);
+$stmt->bind_param("i", $user_id); // Assuming user_id is an integer
+$stmt->execute();
+$result = $stmt->get_result();
+$user_data = $result->fetch_assoc();
 
 // Display user data
 $username = $user_data['username'];
@@ -46,7 +49,7 @@ $role = $user_data['role'];
         }
 
         .profile-container {
-            max-width: 500px;
+            width: 40%;
             margin: 50px auto;
             background-color: #fff;
             padding: 30px;

@@ -138,6 +138,7 @@
                 alert("Please enter a valid email address.");
                 return false;
             }
+            
 
             // Validate Password
             if (!passwordRegex.test(password)) {
@@ -147,7 +148,7 @@
 
             // Validate Confirm Password
             if (password !== confirmpassword) {
-                alert("Passwords do not match.");
+                alert("Password and confirm password do not match.");
                 return false;
             }
 

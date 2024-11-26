@@ -10,7 +10,7 @@ $event_count = mysqli_fetch_assoc(mysqli_query($conn, $event_count_query))['tota
 $upcoming_event_count = mysqli_fetch_assoc(mysqli_query($conn, $upcoming_event_count_query))['total'];
 
 // Fetch upcoming events (example query to get top 3 upcoming events)
-$upcoming_events_query = "SELECT event_id, event_name, date, location FROM events WHERE date >= CURDATE() AND status != 'Pending' ORDER BY date ASC LIMIT 3";
+$upcoming_events_query = "SELECT event_id, event_name, date, location FROM events WHERE date >= CURDATE() AND status = 'Approved' ORDER BY date ASC LIMIT 3";
 $upcoming_events_result = mysqli_query($conn, $upcoming_events_query);
 ?>
 

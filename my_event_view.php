@@ -363,9 +363,9 @@ $feedback_preview_length = 100;
                 <tr>
                     <td><?php echo $num++; ?></td>
                     <td><?php echo $registration['registration_id']; ?></td>
-                    <td><?php echo $registration['user_id'] ? $registration['user_id'] : '<span style="color: red;">Deleted User</span>'; ?></td>
+                    <td><?php echo $registration['user_id'] ; ?></td>
                     <td><?php echo $registration['username'] ? $registration['username'] : '<span style="color: red;">Deleted User</span>'; ?></td>
-                    <td><?php echo $registration['email'] ? $registration['email'] : 'N/A'; ?></td>
+                    <td><?php echo $registration['email'] ? $registration['email'] : '<span style="color: red;">Deleted User</span>'; ?></td>
                     <td><?php echo $registration['registration_date']; ?></td>
                     <td>
                         <a href="delete_action.php?action=delete_registration&event_id=<?php echo $event_id; ?>&user_id=<?php echo $registration['user_id']; ?>" 

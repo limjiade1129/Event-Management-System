@@ -8,8 +8,6 @@ if (!isset($_SESSION["login"])) {
     exit();
 }
 
-// Initialize variables for form inputs
-$event_name = $event_type = $date = $start_time = $end_time = $location = $slots = $description = "";
 $image_err = "";
 
 // Handle form submission

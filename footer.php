@@ -1,7 +1,7 @@
 <footer style="background-color: #3498db; color: white; text-align: center; margin-top: 20px; font-size: 0.9em;">
     <div class="container">
         <div class="row">
-            <!-- About Section -->
+            <!-- About Us Section -->
             <div class="col-md-4 mb-3">
                 <h5>About Us</h5>
                 <p>We are a platform dedicated to managing and organizing events with ease. Connect, share, and enjoy events tailored to your interests.</p>
@@ -33,7 +33,7 @@
     </div>
 </footer>
 
-<!-- Additional CSS -->
+<!-- CSS -->
 <style>
     /* Button styling */
     .footer-btn {

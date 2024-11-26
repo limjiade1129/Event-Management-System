@@ -37,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $description = $_POST['description'];
     $image = $event['image']; // Keep the existing image unless a new one is uploaded
 
-    // Handle file upload for image
+    // Check if there is a new image is uploaded
     if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
         $new_image = $_FILES['image']['name'];
         $target_dir = "uploads/";

@@ -196,11 +196,13 @@ $email = $user['email'];
 </head>
 <body>
 
+<!-- About Us Section -->
 <div class="about-section">
     <h1>About Us</h1>
     <p>Welcome to EventGo, your gateway to campus events.</p>
 </div>
 
+<!-- Story Section -->
 <div class="story">
     <div class="story-text">
         <h2>Our Story</h2>
@@ -213,6 +215,7 @@ $email = $user['email'];
     <img src="img/background1.jpg" alt="Our Story">
 </div>
 
+<!-- Our Team Section -->
 <h2 style="text-align:center ; margin-top:30px">Our Team</h2>
 <div class="row">
   <!-- Team member 1 -->
@@ -243,6 +246,7 @@ $email = $user['email'];
 
 </div>
 
+<!-- Contact Us Section -->
 <div class="contact-container" id="contact">
     <h2>Contact Us</h2>
     <form action="handle_contactus.php" method="post" onsubmit="return validateForm()">
@@ -254,7 +258,7 @@ $email = $user['email'];
     </form>
 </div>
 
-
+<!-- Map Section -->
 <div class="map-container">
     <h2 style="text-align: center; margin-bottom: 20px;">Our Location</h2>
     <div class="map">

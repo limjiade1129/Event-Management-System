@@ -23,7 +23,7 @@ $check_result = mysqli_query($conn, $check_query);
 $is_registered = mysqli_num_rows($check_result) > 0;
 
 // If the user confirms registration and there are slots available
-if (isset($_GET['register']) && !$is_registered && $event['slots'] > 0) {
+if (isset($_GET['register'])) {
     // Register the user for the event
     $insert_query = "INSERT INTO event_registrations (event_id, user_id) VALUES ('$event_id', '$user_id')";
     
@@ -294,7 +294,7 @@ if (isset($_GET['register']) && !$is_registered && $event['slots'] > 0) {
 <script>
     function confirmRegistration() {
         if (confirm("Are you sure you want to register for this event?")) {
-            window.location.href = 'event_details.php?id=<?php echo $event_id; ?>&register=true&from=<?php echo $from; ?>';
+            window.location.href = 'event_details.php?id=<?php echo $event_id; ?>&register=true; ?>';
         }
     }
     function goBack() {
